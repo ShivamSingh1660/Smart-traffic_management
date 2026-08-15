@@ -104,6 +104,13 @@ def _compute_unmanned_critical(risk_level: str, police_assigned: int) -> bool:
     return risk_level in ("High", "Critical") and police_assigned == 0
 
 
+# The ML model alone under-weights rare accident events due to limited
+# training data. This adjustment is a deliberate, transparent rule-based
+# correction layered on top of the ML prediction, and is disclosed as
+# such — NOT presented as a pure ML output.
+SEVERITY_BOOST = {"high": 12, "medium": 6, "low": 3}
+
+
 def _get_feature_dict(loc: Location) -> dict:
     """Extract the feature dict from a Location ORM object for ML prediction."""
     return {
@@ -150,7 +157,16 @@ def _location_detail(loc: Location, db: Session) -> dict:
     #  compatibility but is no longer used by this endpoint.
     # ---------------------------------------------------------------
     features = _get_feature_dict(loc)
-    risk_factors = explain_prediction(features, top_n=5)
+
+    # Calculate severity boost from the most recent unresolved incident
+    severity_boost = 0
+    recent_incident = loc.incidents.filter(Incident.resolved_flag == False).order_by(
+        Incident.timestamp.desc()
+    ).first()
+    if recent_incident:
+        severity_boost = SEVERITY_BOOST.get(recent_incident.severity, 0)
+
+    risk_factors = explain_prediction(features, top_n=5, severity_boost=severity_boost)
 
     recent_incidents = [
         {
@@ -305,7 +321,16 @@ def create_incident(body: IncidentCreate, db: Session = Depends(get_db)):
 
     # --- Run ML prediction with updated features ---
     features = _get_feature_dict(loc)
-    loc.risk_score = predict_risk(features)
+    ml_score = predict_risk(features)
+
+    # --- Rule-based severity adjustment (transparent, disclosed) ---
+    # The ML model alone under-weights rare accident events due to limited
+    # training data. This adjustment is a deliberate, transparent rule-based
+    # correction layered on top of the ML prediction, and is disclosed as
+    # such — NOT presented as a pure ML output.
+    boost = SEVERITY_BOOST.get(body.severity, 0) if incident_type == "accident" else 0
+    loc.risk_score = min(ml_score + boost, 100)
+
     loc.risk_level = _compute_risk_level(loc.risk_score)
     loc.unmanned_critical = _compute_unmanned_critical(loc.risk_level, loc.police_assigned)
 

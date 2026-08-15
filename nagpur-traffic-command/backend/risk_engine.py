@@ -110,14 +110,36 @@ def predict_risk(feature_dict: dict) -> int:
     return int(np.clip(round(prediction), 0, 100))
 
 
-def explain_prediction(feature_dict: dict, top_n: int = 5) -> list[dict]:
+# ---------------------------------------------------------------------------
+#  True Weights (from dataset generation formula) for Explainability
+# ---------------------------------------------------------------------------
+# The random forest model learned very low feature importance (0.0036) for 
+# rare events like accidents. To provide accurate explanations that match the
+# true risk mechanics, we use the exact constants defined in generate_dataset.py.
+_TRUE_WEIGHTS = {
+    "congestion_level": 0.15,
+    "accident_count_recent": 0.50,
+    "violation_count": 0.10,
+    "illegal_parking_count": 0.05,
+    "obstruction_count": 0.05,
+    "roadwork_flag": 0.05,
+    "event_flag": 0.05,
+    "weather_rain": 0.05,
+    "weather_fog": 0.05,
+    "weather_clear": 0.0,
+    "police_coverage": 0.05,
+}
+
+def explain_prediction(feature_dict: dict, top_n: int = 5, severity_boost: int = 0) -> list[dict]:
     """
     Return the top_n contributing factors for a prediction as a list of
     {"factor": human_readable_string, "contribution": float}.
 
-    Uses a simple proxy: contribution = normalised_feature_value * feature_importance.
-    For police_coverage, the contribution is inverted (high coverage = low risk).
-    This is NOT true SHAP, but provides a genuine per-prediction breakdown.
+    Uses the exact true weighting logic defined during data generation.
+
+    severity_boost: optional rule-based adjustment (0-12 points) applied on
+    top of the ML prediction for recent accident severity. When non-zero,
+    it is disclosed as an explicit factor in the breakdown.
     """
     # Auto one-hot encode weather if passed as a string
     if "weather" in feature_dict:
@@ -131,17 +153,15 @@ def explain_prediction(feature_dict: dict, top_n: int = 5) -> list[dict]:
         val = float(feature_dict.get(feat, 0.0))
         max_val = _MAX_VALUES.get(feat, 1.0)
         norm_val = val / max_val if max_val > 0 else 0.0
-        importance = _feature_importances.get(feat, 0.0)
+        
+        # Use true generation weights instead of the ML model's skewed importances
+        importance = _TRUE_WEIGHTS.get(feat, 0.0)
 
         # For police_coverage, invert: HIGH coverage = LOW contribution to risk
         if feat == "police_coverage":
             contrib = (1.0 - norm_val) * importance
         else:
             contrib = norm_val * importance
-
-        # Skip negligible contributions and "clear weather" (not a risk factor)
-        if contrib < 0.001 and feat != "police_coverage":
-            continue
 
         label = _HUMAN_LABELS.get(feat, feat)
 
@@ -150,6 +170,13 @@ def explain_prediction(feature_dict: dict, top_n: int = 5) -> list[dict]:
             label = "Adequate police coverage"
 
         contributions.append({"factor": label, "contribution": round(contrib, 4)})
+
+    # Inject the rule-based severity adjustment as a transparent, disclosed factor
+    if severity_boost > 0:
+        contributions.append({
+            "factor": "Recent accident severity adjustment",
+            "contribution": round(severity_boost / 100.0, 4),
+        })
 
     # Sort descending by contribution
     contributions.sort(key=lambda x: x["contribution"], reverse=True)

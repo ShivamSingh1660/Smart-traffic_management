@@ -47,9 +47,12 @@ def generate_data():
                 avg_speed = np.clip(avg_speed, 5, 80)
                 
                 # Incidents / Events
-                accident_prob = 0.05 if congestion_level > 70 else 0.01
-                accident_count_recent = np.random.poisson(accident_prob)
-                accident_count_recent = np.clip(accident_count_recent, 0, 5)
+                # 30% of rows get accidents with values spread across 1-5
+                if np.random.random() < 0.30:
+                    accident_count_recent = np.random.choice([1, 2, 3, 4, 5],
+                                                             p=[0.30, 0.30, 0.20, 0.12, 0.08])
+                else:
+                    accident_count_recent = 0
                 
                 violation_count = np.random.poisson(traffic_volume / 20.0)
                 violation_count = np.clip(violation_count, 0, 20)
@@ -75,8 +78,11 @@ def generate_data():
                 police_coverage = np.clip(police_coverage, 0, 5)
                 
                 # Risk Score Formula
+                # accident_count_recent is the SINGLE HIGHEST weighted factor.
+                # We also scale it by /3.0 instead of /5.0 so each unit of accident
+                # has a larger marginal effect on the label (0→1 = +16.7 pts).
                 norm_cong = congestion_level / 100.0
-                norm_acc = accident_count_recent / 5.0
+                norm_acc = accident_count_recent / 3.0  # smaller denominator = stronger per-unit signal
                 norm_viol = violation_count / 20.0
                 norm_park = illegal_parking_count / 15.0
                 norm_obs = obstruction_count / 5.0
@@ -84,19 +90,19 @@ def generate_data():
                 norm_police = police_coverage / 5.0
                 
                 raw_risk = (
-                    0.25 * norm_cong +
-                    0.25 * norm_acc +
-                    0.15 * norm_viol +
-                    0.10 * norm_park +
-                    0.10 * norm_obs +
+                    0.15 * norm_cong +
+                    0.50 * norm_acc +
+                    0.10 * norm_viol +
+                    0.05 * norm_park +
+                    0.05 * norm_obs +
                     0.05 * weather_penalty +
                     0.05 * roadwork_flag +
                     0.05 * event_flag -
-                    0.15 * norm_police
+                    0.05 * norm_police
                 ) * 100.0
                 
-                # Add noise
-                raw_risk += np.random.normal(0, 5)
+                # Add noise — kept small so accident signal isn't drowned out
+                raw_risk += np.random.normal(0, 1.5)
                 risk_score = np.clip(raw_risk, 0, 100)
                 
                 rows.append({
@@ -124,7 +130,12 @@ def generate_data():
     df.to_csv(out_path, index=False)
     
     print(f"Generated {len(df)} rows.")
-    print(f"Risk Score Distribution:\n{df['risk_score'].describe()}")
+    print(f"\nRisk Score Distribution:\n{df['risk_score'].describe()}")
+    print(f"\naccident_count_recent Distribution:")
+    print(df['accident_count_recent'].value_counts().sort_index())
+    pct_with_accidents = (df['accident_count_recent'] > 0).mean() * 100
+    print(f"\n% of rows with accident >= 1: {pct_with_accidents:.1f}%")
 
 if __name__ == '__main__':
     generate_data()
+
