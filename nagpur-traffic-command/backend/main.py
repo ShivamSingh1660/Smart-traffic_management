@@ -281,9 +281,9 @@ def create_incident(body: IncidentCreate, db: Session = Depends(get_db)):
 
     if incident_type == "accident":
         # Accident: bump accident count, slightly reduce avg speed
-        loc.accident_count_recent = min(loc.accident_count_recent + mult, 5)
-        loc.avg_speed = max(loc.avg_speed - 10 * mult, 5)
-        loc.congestion_level = min(loc.congestion_level + 20 * mult, 100)
+        loc.accident_count_recent = min(loc.accident_count_recent + 1, 5)
+        loc.avg_speed = max(loc.avg_speed - 2 * mult, 5)
+        loc.congestion_level = min(loc.congestion_level + 3 * mult, 100)
     elif incident_type == "violation":
         # Traffic violation: bump violation count
         loc.violation_count = min(loc.violation_count + mult, 20)
