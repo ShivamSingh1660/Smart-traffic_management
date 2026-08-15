@@ -1,0 +1,17 @@
+[
+  "day_of_week",
+  "time_of_day",
+  "traffic_volume",
+  "avg_speed",
+  "congestion_level",
+  "accident_count_recent",
+  "violation_count",
+  "illegal_parking_count",
+  "obstruction_count",
+  "roadwork_flag",
+  "event_flag",
+  "police_coverage",
+  "weather_clear",
+  "weather_fog",
+  "weather_rain"
+]

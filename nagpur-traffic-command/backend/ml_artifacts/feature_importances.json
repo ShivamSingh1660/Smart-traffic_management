@@ -1,0 +1,17 @@
+{
+  "congestion_level": 0.6208939665467914,
+  "avg_speed": 0.14456276756295175,
+  "police_coverage": 0.06173910127342021,
+  "illegal_parking_count": 0.03486255690746219,
+  "traffic_volume": 0.03216748145127793,
+  "violation_count": 0.03173410279210963,
+  "time_of_day": 0.025252421459787004,
+  "weather_clear": 0.01676648701248562,
+  "day_of_week": 0.012422993134141583,
+  "roadwork_flag": 0.004636037904317177,
+  "weather_rain": 0.004364680610926824,
+  "event_flag": 0.004137926379981515,
+  "accident_count_recent": 0.0036509040607432,
+  "obstruction_count": 0.0014694816404372522,
+  "weather_fog": 0.0013390912631666217
+}

@@ -1,0 +1,65 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+.venv/
+venv/
+env/
+ENV/
+*.env
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ========================
+# Node / React / Vite
+# ========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+frontend/dist/
+frontend/build/
+*.tsbuildinfo
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ========================
+# OS generated
+# ========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ========================
+# ML / Data artifacts
+# ========================
+ml/models/*.pkl
+ml/models/*.h5
+ml/models/*.pt
+data/*.csv
+data/*.json
+*.log
+*.db
+backend/app.db
