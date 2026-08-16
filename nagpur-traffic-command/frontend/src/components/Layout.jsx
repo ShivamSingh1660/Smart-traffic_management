@@ -1,70 +1,84 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { 
+  LayoutGrid, 
+  Map, 
+  MapPin, 
+  ShieldAlert, 
+  AlertTriangle, 
+  Lightbulb, 
+  BarChart2,
+  LightbulbOff
+} from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 const navItems = [
-  { to: "/", label: "Dashboard" },
-  { to: "/heatmap", label: "Risk Heatmap" },
-  { to: "/locations", label: "High-Risk Locations" },
-  { to: "/deployment", label: "Police Deployment" },
-  { to: "/incidents", label: "Active Incidents" },
-  { to: "/recommendations", label: "AI Recommendations" },
-  { to: "/analytics", label: "Analytics" },
+  { to: "/", label: "Dashboard", icon: <LayoutGrid size={20} strokeWidth={1.5} /> },
+  { to: "/heatmap", label: "Risk Heatmap", icon: <Map size={20} strokeWidth={1.5} /> },
+  { to: "/locations", label: "High-Risk Locations", icon: <MapPin size={20} strokeWidth={1.5} /> },
+  { to: "/deployment", label: "Police Deployment", icon: <ShieldAlert size={20} strokeWidth={1.5} /> },
+  { to: "/incidents", label: "Active Incidents", icon: <AlertTriangle size={20} strokeWidth={1.5} /> },
+  { to: "/recommendations", label: "Recommendations", icon: <Lightbulb size={20} strokeWidth={1.5} /> },
+  { to: "/analytics", label: "Analytics", icon: <BarChart2 size={20} strokeWidth={1.5} /> },
 ];
+
+function Sidebar() {
+  const { isDarkMode, toggleTheme } = useTheme();
+
+  return (
+    <aside className="w-[260px] h-screen bg-bg-app flex flex-col pt-6 pb-6 border-r border-border-subtle shrink-0 hidden md:flex transition-colors">
+      {/* Logo Area */}
+      <div className="px-8 mb-10">
+        <div className="w-10 h-10 rounded-full bg-text-primary flex items-center justify-center shadow-lg shadow-black/10">
+          <div className="w-4 h-4 bg-bg-app rounded-sm rotate-45 transform"></div>
+        </div>
+        <div className="mt-4 font-bold text-text-primary">Traffic Command</div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === "/"}
+            className={({ isActive }) => 
+              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                isActive 
+                  ? "bg-bg-card backdrop-blur-xl backdrop-saturate-150 shadow-[var(--shadow-card)] text-text-primary font-semibold" 
+                  : "text-text-secondary hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover hover:text-text-primary font-medium"
+              }`
+            }
+          >
+            {item.icon}
+            <span className="text-sm">{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+      
+      {/* Footer */}
+      <div className="px-8 mt-auto flex items-center justify-between">
+        <div className="text-xs text-text-tertiary font-medium">Nagpur v0.1</div>
+        <button 
+          onClick={toggleTheme}
+          className="p-2 rounded-full text-text-secondary hover:text-text-primary hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover transition-colors"
+          title="Toggle Dark Mode"
+        >
+          {isDarkMode ? <LightbulbOff size={18} /> : <Lightbulb size={18} />}
+        </button>
+      </div>
+    </aside>
+  );
+}
 
 export default function Layout() {
   return (
-    <div className="flex h-screen bg-gray-950 text-gray-100 overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-60 flex-shrink-0 bg-gray-900 border-r border-gray-800 flex flex-col">
-        {/* Sidebar header */}
-        <div className="px-4 py-5 border-b border-gray-800">
-          <h2 className="text-sm font-bold tracking-widest uppercase text-gray-400">
-            Navigation
-          </h2>
-        </div>
-
-        {/* Nav links */}
-        <nav className="flex-1 overflow-y-auto py-2">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/"}
-              className={({ isActive }) =>
-                `block px-4 py-2.5 text-sm font-medium border-l-2 transition-colors duration-150 ${
-                  isActive
-                    ? "border-cyan-500 bg-gray-800/60 text-cyan-400"
-                    : "border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/40"
-                }`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Sidebar footer */}
-        <div className="px-4 py-3 border-t border-gray-800 text-xs text-gray-600">
-          Nagpur Traffic Command v0.1
-        </div>
-      </aside>
-
-      {/* Main area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header bar */}
-        <header className="h-14 flex-shrink-0 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6">
-          <h1 className="text-base font-semibold tracking-wide text-gray-100">
-            Nagpur Traffic Command &amp; Decision Support
-          </h1>
-          <span className="inline-block px-3 py-1 text-xs font-semibold tracking-wider uppercase bg-amber-900/40 text-amber-400 border border-amber-700/50">
-            Simulated Data — Hackathon Prototype
-          </span>
-        </header>
-
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6">
+    <div className="flex h-screen bg-bg-app overflow-hidden font-sans transition-colors">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto bg-bg-content rounded-tl-[32px] md:my-2 md:mr-2 shadow-[var(--shadow-card)] border border-border-subtle transition-colors">
+        <div className="p-8 md:p-12 mx-auto">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

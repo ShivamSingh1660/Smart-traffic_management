@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getIncidents, getLocations, postIncident, getLocationDetail } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
+import { RefreshCw } from "lucide-react";
 
 export default function ActiveIncidents() {
   const [incidents, setIncidents] = useState([]);
@@ -95,80 +96,81 @@ export default function ActiveIncidents() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-end mb-12">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Active Incidents</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">Active Incidents</h1>
+          <p className="mt-4 text-text-secondary font-medium">
             Live feed of active traffic incidents and simulation controls.
           </p>
         </div>
         <button
           onClick={fetchData}
-          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium rounded border border-gray-700 transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-bg-card backdrop-blur-xl backdrop-saturate-150 hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover text-text-primary text-sm font-semibold rounded-xl shadow-sm transition-all"
         >
-          Refresh Feed
+          <RefreshCw size={16} strokeWidth={2} />
+          Refresh
         </button>
       </div>
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="bg-emerald-900/50 border border-emerald-800 text-emerald-200 px-4 py-3 rounded mb-4">
-          <p className="text-sm font-medium">{toastMessage}</p>
+        <div className="bg-risk-low-bg text-risk-low px-6 py-4 rounded-xl mb-4">
+          <p className="text-sm font-semibold">{toastMessage}</p>
         </div>
       )}
 
       {error && (
-         <div className="flex items-center justify-center h-32">
-           <div className="text-center max-w-md">
-             <p className="text-red-400 font-semibold mb-2">Could not load incidents</p>
-             <p className="text-gray-500 text-sm">{error}</p>
+         <div className="flex items-center justify-center h-32 bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)]">
+           <div className="text-center max-w-md p-8">
+             <p className="text-risk-critical font-bold text-lg mb-2">Could not load incidents</p>
+             <p className="text-text-secondary text-sm">{error}</p>
            </div>
          </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Column: Incidents List */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-sm">
-            <div className="px-5 py-3 border-b border-gray-800 flex justify-between items-center">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
+            <div className="px-8 py-6 border-b border-border-subtle flex justify-between items-center">
+              <h2 className="text-text-primary font-bold text-xl">
                 Live Feed
               </h2>
-              <span className="text-xs bg-gray-800 text-gray-300 px-2 py-1 rounded">
+              <span className="text-xs bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover text-text-primary px-3 py-1.5 rounded-full font-bold">
                 {incidents.length} active
               </span>
             </div>
             
             {loading ? (
-              <div className="p-8 text-center text-gray-500 animate-pulse text-sm">
+              <div className="p-8 text-center text-text-secondary animate-pulse text-sm font-medium">
                 Loading incidents...
               </div>
             ) : incidents.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 text-sm">
+              <div className="p-8 text-center text-text-secondary text-sm font-medium">
                 No active incidents reported.
               </div>
             ) : (
-              <div className="divide-y divide-gray-800/50 max-h-[600px] overflow-y-auto">
+              <div className="divide-y divide-black/5 max-h-[600px] overflow-y-auto">
                 {incidents.map((inc) => (
-                  <div key={inc.incident_id} className="p-4 hover:bg-gray-800/40 transition-colors flex items-start justify-between">
+                  <div key={inc.incident_id} className="p-6 hover:bg-black/[0.02] transition-colors flex items-start justify-between">
                     <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide
-                          ${inc.severity === 'high' ? 'bg-red-900/50 text-red-400 border border-red-800' : 
-                            inc.severity === 'medium' ? 'bg-orange-900/50 text-orange-400 border border-orange-800' : 
-                            'bg-yellow-900/50 text-yellow-400 border border-yellow-800'}`}>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                          ${inc.severity === 'high' ? 'bg-risk-critical-bg text-risk-critical' : 
+                            inc.severity === 'medium' ? 'bg-risk-high-bg text-risk-high' : 
+                            'bg-risk-medium-bg text-risk-medium'}`}>
                           {inc.severity}
                         </span>
-                        <span className="text-gray-300 font-medium capitalize">{inc.type}</span>
+                        <span className="text-text-primary font-semibold capitalize">{inc.type}</span>
                       </div>
-                      <p className="text-gray-400 text-sm">{getLocationName(inc.junction_id)}</p>
+                      <p className="text-text-secondary text-sm font-medium">{getLocationName(inc.junction_id)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-gray-500 text-xs font-mono">{new Date(inc.timestamp).toLocaleString()}</p>
-                      <p className="text-gray-600 text-xs mt-1">ID: {inc.incident_id}</p>
+                      <p className="text-text-secondary text-xs font-medium">{new Date(inc.timestamp).toLocaleString()}</p>
+                      <p className="text-text-tertiary text-xs mt-1">ID: {inc.incident_id}</p>
                     </div>
                   </div>
                 ))}
@@ -178,18 +180,18 @@ export default function ActiveIncidents() {
         </div>
 
         {/* Right Column: Injector Form & Logs */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           
           {/* Form */}
-          <div className="bg-gray-900 border border-gray-800 rounded-sm p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+            <h2 className="text-text-primary font-bold text-xl mb-6">
               Inject New Incident
             </h2>
-            <form onSubmit={handleInject} className="space-y-4">
+            <form onSubmit={handleInject} className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Location</label>
+                <label className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-wider">Location</label>
                 <select 
-                  className="w-full bg-gray-800 border border-gray-700 rounded text-gray-200 text-sm p-2 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-bg-content border border-border-subtle rounded-xl text-text-primary text-sm p-3 focus:outline-none focus:ring-2 focus:ring-[var(--risk-low)]/50 font-medium"
                   value={formJunction}
                   onChange={(e) => setFormJunction(e.target.value)}
                   disabled={loading || locations.length === 0}
@@ -201,9 +203,9 @@ export default function ActiveIncidents() {
               </div>
               
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Type</label>
+                <label className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-wider">Type</label>
                 <select 
-                  className="w-full bg-gray-800 border border-gray-700 rounded text-gray-200 text-sm p-2 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-bg-content border border-border-subtle rounded-xl text-text-primary text-sm p-3 focus:outline-none focus:ring-2 focus:ring-[var(--risk-low)]/50 font-medium"
                   value={formType}
                   onChange={(e) => setFormType(e.target.value)}
                 >
@@ -216,9 +218,9 @@ export default function ActiveIncidents() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Severity</label>
+                <label className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-wider">Severity</label>
                 <select 
-                  className="w-full bg-gray-800 border border-gray-700 rounded text-gray-200 text-sm p-2 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-bg-content border border-border-subtle rounded-xl text-text-primary text-sm p-3 focus:outline-none focus:ring-2 focus:ring-[var(--risk-low)]/50 font-medium"
                   value={formSeverity}
                   onChange={(e) => setFormSeverity(e.target.value)}
                 >
@@ -231,7 +233,7 @@ export default function ActiveIncidents() {
               <button 
                 type="submit" 
                 disabled={isSubmitting || !formJunction}
-                className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded transition-colors disabled:opacity-50"
+                className="w-full mt-2 bg-text-primary hover:opacity-80 text-bg-app font-bold py-3 rounded-xl transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? "Simulating..." : "Simulate Incident"}
               </button>
@@ -239,32 +241,32 @@ export default function ActiveIncidents() {
           </div>
 
           {/* Logs */}
-          <div className="bg-gray-900 border border-gray-800 rounded-sm flex flex-col max-h-[300px]">
-            <div className="px-5 py-3 border-b border-gray-800">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden flex flex-col max-h-[300px]">
+            <div className="px-8 py-6 border-b border-border-subtle">
+              <h2 className="text-text-primary font-bold text-xl">
                 Injection Log
               </h2>
             </div>
-            <div className="overflow-y-auto p-4 space-y-3 flex-1">
+            <div className="overflow-y-auto p-6 space-y-3 flex-1">
               {injectionLogs.length === 0 ? (
-                <p className="text-gray-500 text-sm text-center py-4">No recent injections.</p>
+                <p className="text-text-secondary text-sm text-center py-4 font-medium">No recent injections.</p>
               ) : (
                 injectionLogs.map((log) => (
-                  <div key={log.id} className="bg-gray-800/50 p-3 rounded text-sm border border-gray-700/50">
-                    <p className="text-gray-300 font-medium mb-1">{log.locationName}</p>
+                  <div key={log.id} className="bg-bg-content p-4 rounded-xl text-sm">
+                    <p className="text-text-primary font-bold mb-2">{log.locationName}</p>
                     <div className="flex items-center space-x-2 text-xs">
-                      <span className="text-gray-500 line-through">
+                      <span className="text-text-tertiary line-through font-medium">
                         {log.beforeScore} ({log.beforeLevel})
                       </span>
-                      <span className="text-gray-400">→</span>
-                      <span className="font-bold text-gray-100 flex items-center space-x-1">
+                      <span className="text-text-secondary">→</span>
+                      <span className="font-bold text-text-primary flex items-center space-x-1">
                         <span>{log.afterScore}</span>
                         <span className="opacity-80 scale-75 origin-left inline-block">
                           <RiskBadge level={log.afterLevel} />
                         </span>
                       </span>
                     </div>
-                    <p className="text-gray-600 text-[10px] mt-1 text-right">{log.timestamp}</p>
+                    <p className="text-text-tertiary text-[10px] mt-2 text-right font-medium">{log.timestamp}</p>
                   </div>
                 ))
               )}

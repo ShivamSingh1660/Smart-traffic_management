@@ -1,23 +1,22 @@
-const variants = {
-  default: "bg-gray-800 border-gray-700",
-  warning: "bg-gray-800 border-amber-600/60",
-};
+import { HelpCircle } from "lucide-react";
 
-export default function KpiCard({ label, value, variant = "default" }) {
-  const style = variants[variant] || variants.default;
+export default function KpiCard({ label, value, variant = "default", icon }) {
+  const isWarning = variant === "warning";
 
   return (
-    <div className={`border rounded-sm px-5 py-4 ${style}`}>
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">
-        {label}
-      </p>
-      <p
-        className={`text-2xl font-bold tabular-nums ${
-          variant === "warning" ? "text-amber-400" : "text-gray-100"
-        }`}
-      >
-        {value}
-      </p>
+    <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-6 flex flex-col justify-between transition-colors">
+      <div className="flex items-center gap-2 mb-6">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isWarning ? 'bg-risk-critical-bg' : 'bg-bg-content'}`}>
+          {icon || <HelpCircle className={isWarning ? 'text-risk-critical' : 'text-text-secondary'} size={20} strokeWidth={1.5} />}
+        </div>
+        <span className="text-text-secondary font-medium text-sm ml-2 transition-colors">{label}</span>
+      </div>
+      
+      <div>
+        <span className={`text-4xl md:text-5xl font-bold tracking-tight transition-colors ${isWarning ? 'text-risk-critical' : 'text-text-primary'}`}>
+          {value}
+        </span>
+      </div>
     </div>
   );
 }

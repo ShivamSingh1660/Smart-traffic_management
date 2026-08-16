@@ -1,5 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
+
+:root {
+  /* Light Mode (Glossy) */
+  --bg-app: #f1f5f9; /* slate-100 */
+  --bg-content: #e2e8f0; /* slate-200 */
+  --bg-card: rgba(255, 255, 255, 0.65);
+  --bg-card-hover: rgba(255, 255, 255, 0.85);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  
+  --border-subtle: rgba(255,255,255,0.5);
+  --border-strong: rgba(255,255,255,0.8);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.06);
+  
+  --risk-critical: #ef4444; 
+  --risk-critical-bg: rgba(239, 68, 68, 0.15);
+  --risk-high: #f97316; 
+  --risk-high-bg: rgba(249, 115, 22, 0.15);
+  --risk-medium: #eab308; 
+  --risk-medium-bg: rgba(234, 179, 8, 0.15);
+  --risk-low: #10b981; 
+  --risk-low-bg: rgba(16, 185, 129, 0.15);
+}
+
+.dark {
+  /* Dark Mode (Sleek Grey & Neon) */
+  --bg-app: #0f172a; /* slate-900 */
+  --bg-content: #1e293b; /* slate-800 */
+  --bg-card: rgba(15, 23, 42, 0.5);
+  --bg-card-hover: rgba(15, 23, 42, 0.8);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-strong: rgba(255,255,255,0.15);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.3);
+  
+  --risk-critical: #ff4757; 
+  --risk-critical-bg: rgba(255, 71, 87, 0.2);
+  --risk-high: #ffa502;
+  --risk-high-bg: rgba(255, 165, 2, 0.2);
+  --risk-medium: #eccc68;
+  --risk-medium-bg: rgba(236, 204, 104, 0.2);
+  --risk-low: #2ed573;
+  --risk-low-bg: rgba(46, 213, 115, 0.2);
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  
+  /* Map CSS variables to Tailwind colors */
+  --color-bg-app: var(--bg-app);
+  --color-bg-content: var(--bg-content);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-hover: var(--bg-card-hover);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  
+  --color-risk-critical: var(--risk-critical);
+  --color-risk-critical-bg: var(--risk-critical-bg);
+  --color-risk-high: var(--risk-high);
+  --color-risk-high-bg: var(--risk-high-bg);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-medium-bg: var(--risk-medium-bg);
+  --color-risk-low: var(--risk-low);
+  --color-risk-low-bg: var(--risk-low-bg);
+}
 
 /* Unmanned-critical marker pulse animation */
 @keyframes pulse-ring {

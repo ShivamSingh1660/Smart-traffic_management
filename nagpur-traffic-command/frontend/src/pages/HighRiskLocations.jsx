@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLocations } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
+import { AlertTriangle } from "lucide-react";
 
 export default function HighRiskLocations() {
   const [locations, setLocations] = useState([]);
@@ -13,7 +14,6 @@ export default function HighRiskLocations() {
     setLoading(true);
     getLocations()
       .then((data) => {
-        // Backend already sorts by risk_score descending, but we can ensure it here
         const sorted = [...data].sort((a, b) => b.risk_score - a.risk_score);
         setLocations(sorted);
         setLoading(false);
@@ -25,76 +25,74 @@ export default function HighRiskLocations() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gray-900 border border-gray-800 rounded-sm p-5">
-        <h1 className="text-2xl font-bold text-gray-100 mb-2">High-Risk Locations</h1>
-        <p className="text-gray-400 text-sm max-w-3xl">
+    <div className="space-y-8">
+      <div className="mb-12">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">High-Risk Locations</h1>
+        <p className="mt-4 text-text-secondary font-medium max-w-3xl">
           Ranked list of all monitored junctions sorted by risk score. Unmanned critical 
           locations are highlighted and require immediate attention. Click any row for 
           detailed explainability and history.
         </p>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-sm overflow-hidden">
+      <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-48">
-            <p className="text-gray-500 text-sm animate-pulse">Loading locations...</p>
+            <p className="text-text-secondary text-sm animate-pulse font-medium">Loading locations...</p>
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center h-48">
-            <p className="text-red-400 font-semibold mb-2">Failed to load data</p>
-            <p className="text-gray-500 text-sm">{error}</p>
+          <div className="flex flex-col items-center justify-center h-48 p-8">
+            <p className="text-risk-critical font-bold text-lg mb-2">Failed to load data</p>
+            <p className="text-text-secondary text-sm">{error}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left whitespace-nowrap">
               <thead>
-                <tr className="border-b border-gray-800 text-xs uppercase tracking-wider text-gray-500 bg-gray-800/30">
-                  <th className="px-5 py-3 font-medium w-16 text-center">Rank</th>
-                  <th className="px-5 py-3 font-medium">Location Name</th>
-                  <th className="px-5 py-3 font-medium">Risk Score</th>
-                  <th className="px-5 py-3 font-medium">Risk Level</th>
-                  <th className="px-5 py-3 font-medium">Police Assigned</th>
+                <tr className="border-b border-border-subtle text-text-secondary font-medium">
+                  <th className="px-6 py-4 font-medium w-16 text-center">Rank</th>
+                  <th className="px-6 py-4 font-medium">Location Name</th>
+                  <th className="px-6 py-4 font-medium">Risk Score</th>
+                  <th className="px-6 py-4 font-medium">Risk Level</th>
+                  <th className="px-6 py-4 font-medium">Police Assigned</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/50">
+              <tbody>
                 {locations.map((loc, idx) => {
                   const isUnmannedCritical = loc.unmanned_critical;
                   return (
                     <tr 
                       key={loc.junction_id} 
                       onClick={() => navigate(`/locations/${loc.junction_id}`)}
-                      className={`cursor-pointer transition-colors ${
+                      className={`cursor-pointer transition-colors border-b border-border-subtle last:border-0 ${
                         isUnmannedCritical 
-                          ? "bg-red-900/10 hover:bg-red-900/20 border-l-2 border-l-red-500" 
-                          : "hover:bg-gray-800/40 border-l-2 border-l-transparent"
+                          ? "bg-risk-critical-bg/40 hover:bg-risk-critical-bg border-l-4 border-l-[var(--risk-critical)]" 
+                          : "hover:bg-black/5 border-l-4 border-l-transparent"
                       }`}
                     >
-                      <td className="px-5 py-4 font-mono text-gray-500 text-center">
+                      <td className="px-6 py-5 font-semibold text-text-secondary text-center">
                         #{idx + 1}
                       </td>
-                      <td className="px-5 py-4 font-medium text-gray-200 flex items-center gap-2">
+                      <td className="px-6 py-5 font-bold text-text-primary flex items-center gap-2">
                         {loc.name}
                         {isUnmannedCritical && (
-                          <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                          </svg>
+                          <AlertTriangle size={16} strokeWidth={2.5} className="text-risk-critical" />
                         )}
                       </td>
-                      <td className={`px-5 py-4 font-mono font-bold ${
-                        loc.risk_level === 'Critical' ? 'text-red-500' :
-                        loc.risk_level === 'High' ? 'text-orange-500' :
-                        loc.risk_level === 'Medium' ? 'text-yellow-500' : 'text-emerald-500'
+                      <td className={`px-6 py-5 font-bold ${
+                        loc.risk_level === 'Critical' ? 'text-risk-critical' :
+                        loc.risk_level === 'High' ? 'text-risk-high' :
+                        loc.risk_level === 'Medium' ? 'text-risk-medium' : 'text-risk-low'
                       }`}>
                         {loc.risk_score}
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-6 py-5">
                         <RiskBadge level={loc.risk_level} />
                       </td>
-                      <td className="px-5 py-4 font-mono text-gray-400">
+                      <td className="px-6 py-5 font-semibold text-text-secondary">
                         {loc.police_assigned}
                         {isUnmannedCritical && (
-                          <span className="ml-2 text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded uppercase tracking-wider">
+                          <span className="ml-3 text-xs font-bold text-risk-critical bg-risk-critical-bg px-2 py-1 rounded-full uppercase tracking-wider">
                             Unmanned
                           </span>
                         )}
