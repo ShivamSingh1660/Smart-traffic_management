@@ -4,10 +4,7 @@ import { getLocations } from "../api/client";
 import KpiCard from "../components/KpiCard";
 import RiskBadge from "../components/RiskBadge";
 import RiskMap from "../components/RiskMap";
-
-/* ------------------------------------------------------------------ */
-/*  Dashboard page — fetches live data from the backend               */
-/* ------------------------------------------------------------------ */
+import { MapPin, ShieldAlert, Users, LayoutGrid, RefreshCw } from "lucide-react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -34,7 +31,6 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  /* ---- Derive KPIs from fetched data ---- */
   const totalLocations = locations.length;
   const criticalLocations = locations.filter(
     (l) => l.risk_level === "Critical"
@@ -47,34 +43,31 @@ export default function Dashboard() {
     0
   );
 
-  /* ---- Top 5 by risk score ---- */
   const topRiskLocations = [...locations]
     .sort((a, b) => b.risk_score - a.risk_score)
     .slice(0, 5);
 
-  /* ---- Loading state ---- */
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500 text-sm animate-pulse">
+        <p className="text-text-secondary text-sm animate-pulse font-medium">
           Loading dashboard data...
         </p>
       </div>
     );
   }
 
-  /* ---- Error state ---- */
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center max-w-md">
-          <p className="text-red-400 font-semibold mb-2">
+      <div className="flex items-center justify-center h-64 bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)]">
+        <div className="text-center max-w-md p-8">
+          <p className="text-risk-critical font-bold text-lg mb-2">
             Could not load location data
           </p>
-          <p className="text-gray-500 text-sm">{error}</p>
-          <p className="text-gray-600 text-xs mt-3">
-            Is the backend running? Start it with:{" "}
-            <code className="text-gray-400">
+          <p className="text-text-secondary text-sm mb-4">{error}</p>
+          <p className="text-text-secondary text-xs">
+            Is the backend running? Start it with: <br />
+            <code className="text-text-primary bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover px-2 py-1 rounded-md mt-2 inline-block">
               uvicorn main:app --reload --port 8000
             </code>
           </p>
@@ -83,60 +76,61 @@ export default function Dashboard() {
     );
   }
 
-  /* ---- Loaded state ---- */
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Page heading */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-end mb-12">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Showing simulated data. Live data will connect in a later development
-            stage.
+          <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">Dashboard</h1>
+          <p className="mt-4 text-text-secondary font-medium">
+            Overview of live traffic conditions and risk metrics.
           </p>
         </div>
         <button
           onClick={fetchData}
-          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium rounded border border-gray-700 transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-bg-card backdrop-blur-xl backdrop-saturate-150 hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover text-text-primary text-sm font-semibold rounded-xl shadow-sm transition-all"
         >
-          Refresh Data
+          <RefreshCw size={16} strokeWidth={2} />
+          Refresh
         </button>
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Total Monitored Locations" value={totalLocations} />
-        <KpiCard label="Critical Risk Locations" value={criticalLocations} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KpiCard label="Monitored Locations" value={totalLocations} icon={<LayoutGrid size={20} className="text-text-secondary" strokeWidth={1.5} />} />
+        <KpiCard label="Critical Risk" value={criticalLocations} icon={<ShieldAlert size={20} className="text-text-secondary" strokeWidth={1.5} />} />
         <KpiCard
-          label="Unmanned Critical Locations"
+          label="Unmanned Critical"
           value={unmannedCritical}
           variant="warning"
+          icon={<MapPin size={20} className="text-risk-critical" strokeWidth={1.5} />}
         />
         <KpiCard
           label="Officers Deployed"
           value={officersDeployed}
+          icon={<Users size={20} className="text-text-secondary" strokeWidth={1.5} />}
         />
       </div>
 
       {/* Two-column: risk list + map */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* ---- Top 5 High-Risk Locations ---- */}
-        <div className="bg-gray-900 border border-gray-800 rounded-sm">
-          <div className="px-5 py-3 border-b border-gray-800">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden flex flex-col">
+          <div className="px-8 py-6 border-b border-border-subtle">
+            <h2 className="text-text-primary font-bold text-xl">
               Top 5 High-Risk Locations
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto flex-1 p-2">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-b border-gray-800 text-xs uppercase tracking-wider text-gray-500">
-                  <th className="px-5 py-3 font-medium">#</th>
-                  <th className="px-5 py-3 font-medium">Location</th>
-                  <th className="px-5 py-3 font-medium text-right">Risk</th>
-                  <th className="px-5 py-3 font-medium">Level</th>
-                  <th className="px-5 py-3 font-medium text-right">Police</th>
+                <tr className="border-b border-border-subtle text-text-secondary font-medium">
+                  <th className="px-6 py-4 font-medium">#</th>
+                  <th className="px-6 py-4 font-medium">Location</th>
+                  <th className="px-6 py-4 font-medium text-right">Risk</th>
+                  <th className="px-6 py-4 font-medium">Level</th>
+                  <th className="px-6 py-4 font-medium text-right">Police</th>
                 </tr>
               </thead>
               <tbody>
@@ -144,21 +138,21 @@ export default function Dashboard() {
                   <tr
                     key={loc.junction_id}
                     onClick={() => navigate(`/locations/${loc.junction_id}`)}
-                    className="border-b border-gray-800/50 hover:bg-gray-800/40 transition-colors cursor-pointer"
+                    className="border-b border-border-subtle hover:bg-black/5 transition-colors cursor-pointer last:border-0"
                   >
-                    <td className="px-5 py-3 text-gray-500 font-mono">
+                    <td className="px-6 py-4 text-text-secondary font-semibold">
                       {idx + 1}
                     </td>
-                    <td className="px-5 py-3 text-gray-200 font-medium">
+                    <td className="px-6 py-4 text-text-primary font-semibold">
                       {loc.name}
                     </td>
-                    <td className="px-5 py-3 text-right font-mono font-semibold text-gray-100">
+                    <td className="px-6 py-4 text-right font-bold text-text-primary">
                       {loc.risk_score}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-6 py-4">
                       <RiskBadge level={loc.risk_level} />
                     </td>
-                    <td className="px-5 py-3 text-right font-mono text-gray-300">
+                    <td className="px-6 py-4 text-right font-semibold text-text-secondary">
                       {loc.police_assigned}
                     </td>
                   </tr>
@@ -169,16 +163,16 @@ export default function Dashboard() {
         </div>
 
         {/* ---- Live Risk Map ---- */}
-        <div className="bg-gray-900 border border-gray-800 rounded-sm flex flex-col">
-          <div className="px-5 py-3 border-b border-gray-800">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden flex flex-col min-h-[400px]">
+          <div className="px-8 py-6 border-b border-border-subtle relative z-10 bg-bg-card backdrop-blur-xl backdrop-saturate-150">
+            <h2 className="text-text-primary font-bold text-xl">
               Live Risk Map
             </h2>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 relative z-0">
             <RiskMap
               locations={locations}
-              height="400px"
+              height="100%"
               zoom={11}
               showLegend={true}
               compact={true}

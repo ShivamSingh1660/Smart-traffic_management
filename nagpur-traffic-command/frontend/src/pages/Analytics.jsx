@@ -12,24 +12,21 @@ import {
   PieChart,
   Pie,
 } from "recharts";
-
-/* ------------------------------------------------------------------ */
-/*  Constants                                                         */
-/* ------------------------------------------------------------------ */
+import { RefreshCw } from "lucide-react";
 
 const RISK_COLORS = {
-  Low: "#22c55e",
-  Medium: "#eab308",
-  High: "#f97316",
-  Critical: "#ef4444",
+  Low: "var(--risk-low)",
+  Medium: "var(--risk-medium)",
+  High: "var(--risk-high)",
+  Critical: "var(--risk-critical)",
 };
 
 const INCIDENT_COLORS = {
-  accident: "#ef4444",
-  congestion: "#f59e0b",
-  obstruction: "#8b5cf6",
-  violation: "#06b6d4",
-  illegal_parking: "#ec4899",
+  accident: "var(--risk-critical)",
+  congestion: "var(--risk-high)",
+  obstruction: "#a78bfa",
+  violation: "var(--risk-low)",
+  illegal_parking: "#f4c9a8",
 };
 
 const TOP_FEATURES = [
@@ -38,27 +35,19 @@ const TOP_FEATURES = [
   { name: "Average Speed", key: "avg_speed", importance: 0.015 },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Custom dark-themed tooltip                                        */
-/* ------------------------------------------------------------------ */
-
-function DarkTooltip({ active, payload, label }) {
+function SoftTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-sm px-3 py-2 text-xs shadow-lg">
-      <p className="text-gray-300 font-medium mb-1">{label}</p>
+    <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 border border-border-subtle rounded-xl px-4 py-3 text-xs shadow-[var(--shadow-card)]">
+      <p className="text-text-primary font-bold mb-1">{label}</p>
       {payload.map((entry, i) => (
-        <p key={i} style={{ color: entry.color || "#06b6d4" }}>
-          {entry.name}: <span className="font-mono font-bold">{entry.value}</span>
+        <p key={i} style={{ color: entry.color || "var(--risk-low)" }}>
+          {entry.name}: <span className="font-bold">{entry.value}</span>
         </p>
       ))}
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  Component                                                         */
-/* ------------------------------------------------------------------ */
 
 export default function Analytics() {
   const [locations, setLocations] = useState([]);
@@ -85,8 +74,6 @@ export default function Analytics() {
     fetchData();
   }, [fetchData]);
 
-  /* ---------- Derived data ---------- */
-
   // Risk level distribution
   const riskDistribution = ["Low", "Medium", "High", "Critical"].map(
     (level) => ({
@@ -107,61 +94,57 @@ export default function Analytics() {
       type: type.charAt(0).toUpperCase() + type.slice(1),
       rawType: type,
       count,
-      fill: INCIDENT_COLORS[type] || "#6b7280",
+      fill: INCIDENT_COLORS[type] || "var(--text-secondary)",
     }))
     .sort((a, b) => b.count - a.count);
 
-  /* ------------------------------------------------------------------ */
-  /*  Render                                                            */
-  /* ------------------------------------------------------------------ */
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="bg-gray-900 border border-gray-800 rounded-sm p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100 mb-1">Analytics</h1>
-          <p className="text-gray-400 text-sm max-w-2xl">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">Analytics</h1>
+          <p className="mt-4 text-text-secondary font-medium max-w-2xl">
             Current-snapshot distributions across risk levels and incident
-            types. These charts reflect the live state of the system, not
-            historical trends.
+            types. These charts reflect the live state of the system.
           </p>
         </div>
         <button
           onClick={fetchData}
           disabled={loading}
-          className="shrink-0 px-4 py-2 text-sm font-medium rounded-sm bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors disabled:opacity-40"
+          className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-bg-card backdrop-blur-xl backdrop-saturate-150 hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover text-text-primary text-sm font-semibold rounded-xl shadow-sm transition-all disabled:opacity-40"
         >
-          {loading ? "Refreshing…" : "↻ Refresh"}
+          <RefreshCw size={16} strokeWidth={2} />
+          {loading ? "Refreshing…" : "Refresh"}
         </button>
       </div>
 
       {/* Loading / Error */}
       {loading ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-sm flex items-center justify-center h-48">
-          <p className="text-gray-500 text-sm animate-pulse">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] flex items-center justify-center h-48">
+          <p className="text-text-secondary text-sm animate-pulse font-medium">
             Loading analytics data…
           </p>
         </div>
       ) : error ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-sm flex flex-col items-center justify-center h-48">
-          <p className="text-red-400 font-semibold mb-2">Failed to load data</p>
-          <p className="text-gray-500 text-sm">{error}</p>
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] flex flex-col items-center justify-center h-48 p-8">
+          <p className="text-risk-critical font-bold text-lg mb-2">Failed to load data</p>
+          <p className="text-text-secondary text-sm mb-4">{error}</p>
           <button
             onClick={fetchData}
-            className="mt-4 px-4 py-1.5 text-sm rounded-sm bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 transition-colors"
+            className="px-5 py-2 text-sm rounded-xl bg-bg-card backdrop-blur-xl backdrop-saturate-150 border border-border-strong text-text-primary font-semibold hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover transition-colors"
           >
             Retry
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* ====== Panel 1: Risk Level Distribution ====== */}
-          <div className="bg-gray-900 border border-gray-800 rounded-sm p-5">
-            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Panel 1: Risk Level Distribution */}
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+            <h2 className="text-text-primary font-bold text-xl mb-2">
               Risk Level Distribution
             </h2>
-            <p className="text-xs text-gray-500 mb-5">
+            <p className="text-xs text-text-secondary mb-8 font-medium">
               Count of locations in each risk bucket — current snapshot
             </p>
 
@@ -172,23 +155,23 @@ export default function Analytics() {
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#1f2937"
+                  stroke="var(--border-subtle)"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="level"
-                  tick={{ fill: "#9ca3af", fontSize: 12 }}
-                  axisLine={{ stroke: "#374151" }}
+                  tick={{ fill: "var(--text-secondary)", fontSize: 12 }}
+                  axisLine={{ stroke: "var(--border-strong)" }}
                   tickLine={false}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  tick={{ fill: "var(--text-tertiary)", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
-                <Tooltip content={<DarkTooltip />} />
-                <Bar dataKey="count" name="Locations" radius={[4, 4, 0, 0]}>
+                <Tooltip content={<SoftTooltip />} />
+                <Bar dataKey="count" name="Locations" radius={[8, 8, 0, 0]}>
                   {riskDistribution.map((entry, i) => (
                     <Cell key={i} fill={entry.fill} />
                   ))}
@@ -197,18 +180,18 @@ export default function Analytics() {
             </ResponsiveContainer>
           </div>
 
-          {/* ====== Panel 2: Incident Type Breakdown ====== */}
-          <div className="bg-gray-900 border border-gray-800 rounded-sm p-5">
-            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1">
+          {/* Panel 2: Incident Type Breakdown */}
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+            <h2 className="text-text-primary font-bold text-xl mb-2">
               Incident Type Breakdown
             </h2>
-            <p className="text-xs text-gray-500 mb-5">
+            <p className="text-xs text-text-secondary mb-8 font-medium">
               Active incidents grouped by type — current snapshot
             </p>
 
             {incidentBreakdown.length === 0 ? (
               <div className="flex items-center justify-center h-[240px]">
-                <p className="text-gray-600 text-sm">No incidents recorded</p>
+                <p className="text-text-tertiary text-sm font-medium">No incidents recorded</p>
               </div>
             ) : (
               <div className="flex items-center gap-4">
@@ -223,19 +206,19 @@ export default function Analytics() {
                       innerRadius={50}
                       outerRadius={90}
                       paddingAngle={3}
-                      stroke="#111827"
-                      strokeWidth={2}
+                      stroke="var(--bg-card)"
+                      strokeWidth={3}
                     >
                       {incidentBreakdown.map((entry, i) => (
                         <Cell key={i} fill={entry.fill} />
                       ))}
                     </Pie>
-                    <Tooltip content={<DarkTooltip />} />
+                    <Tooltip content={<SoftTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
 
                 {/* Legend */}
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-3">
                   {incidentBreakdown.map((entry) => (
                     <div
                       key={entry.rawType}
@@ -243,19 +226,19 @@ export default function Analytics() {
                     >
                       <div className="flex items-center gap-2">
                         <span
-                          className="w-3 h-3 rounded-sm shrink-0"
+                          className="w-3 h-3 rounded-full shrink-0"
                           style={{ backgroundColor: entry.fill }}
                         />
-                        <span className="text-gray-300">{entry.type}</span>
+                        <span className="text-text-primary font-medium">{entry.type}</span>
                       </div>
-                      <span className="font-mono font-bold text-gray-200">
+                      <span className="font-bold text-text-primary">
                         {entry.count}
                       </span>
                     </div>
                   ))}
-                  <div className="pt-2 mt-2 border-t border-gray-800 flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Total</span>
-                    <span className="font-mono font-bold text-cyan-400">
+                  <div className="pt-3 mt-3 border-t border-border-subtle flex items-center justify-between text-sm">
+                    <span className="text-text-secondary font-medium">Total</span>
+                    <span className="font-bold text-text-primary">
                       {incidents.length}
                     </span>
                   </div>
@@ -264,39 +247,39 @@ export default function Analytics() {
             )}
           </div>
 
-          {/* ====== Panel 3: Model Info ====== */}
-          <div className="bg-gray-900 border border-gray-800 rounded-sm p-5 lg:col-span-2">
-            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-1">
+          {/* Panel 3: Model Info */}
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8 lg:col-span-2">
+            <h2 className="text-text-primary font-bold text-xl mb-2">
               Model Info
             </h2>
-            <p className="text-xs text-gray-500 mb-5">
+            <p className="text-xs text-text-secondary mb-8 font-medium">
               Static metadata about the risk prediction model powering this
               dashboard
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Model type card */}
-              <div className="bg-gray-800/50 border border-gray-700/40 rounded-sm p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+              <div className="bg-bg-content rounded-xl p-6">
+                <p className="text-xs text-text-secondary uppercase tracking-wider mb-3 font-bold">
                   Model Type
                 </p>
-                <p className="text-lg font-bold text-gray-100">
+                <p className="text-lg font-extrabold text-text-primary">
                   Random Forest Regressor
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-text-secondary mt-2 font-medium">
                   scikit-learn · 100 estimators
                 </p>
               </div>
 
               {/* Data disclaimer card */}
-              <div className="bg-gray-800/50 border border-gray-700/40 rounded-sm p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+              <div className="bg-bg-content rounded-xl p-6">
+                <p className="text-xs text-text-secondary uppercase tracking-wider mb-3 font-bold">
                   Data Source
                 </p>
-                <p className="text-base font-semibold text-amber-400">
+                <p className="text-base font-extrabold text-risk-high">
                   Simulated Data
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-text-secondary mt-2 font-medium">
                   All location features, incidents, and risk scores shown in
                   this dashboard are generated from synthetic data for
                   demonstration purposes.
@@ -304,26 +287,26 @@ export default function Analytics() {
               </div>
 
               {/* Top feature importances card */}
-              <div className="bg-gray-800/50 border border-gray-700/40 rounded-sm p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+              <div className="bg-bg-content rounded-xl p-6">
+                <p className="text-xs text-text-secondary uppercase tracking-wider mb-3 font-bold">
                   Global Model Feature Importance
                 </p>
-                <p className="text-[10px] text-gray-600 mb-3">
+                <p className="text-[10px] text-text-tertiary mb-4 font-medium">
                   Learned by the model across all training data — not a
                   single-prediction explanation
                 </p>
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   {TOP_FEATURES.map((feat) => (
                     <div key={feat.key}>
-                      <div className="flex items-center justify-between text-xs mb-0.5">
-                        <span className="text-gray-300">{feat.name}</span>
-                        <span className="font-mono text-cyan-400">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-text-primary font-semibold">{feat.name}</span>
+                        <span className="font-bold text-risk-low">
                           {(feat.importance * 100).toFixed(1)}%
                         </span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-gray-700 overflow-hidden">
+                      <div className="h-2 rounded-full bg-border-strong overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-cyan-500 transition-all duration-500"
+                          className="h-full rounded-full bg-risk-low transition-all duration-500"
                           style={{ width: `${feat.importance * 100}%` }}
                         />
                       </div>

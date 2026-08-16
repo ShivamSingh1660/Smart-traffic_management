@@ -3,16 +3,17 @@ import { Link } from "react-router-dom";
 import mockLocations from "../data/mockLocations";
 import RiskBadge from "./RiskBadge";
 import MapLegend from "./MapLegend";
+import { useTheme } from "../context/ThemeContext";
 
 /* ------------------------------------------------------------------ */
 /*  Marker color by risk level                                        */
 /* ------------------------------------------------------------------ */
 
 const riskColors = {
-  Critical: "#ef4444",
-  High: "#f97316",
-  Medium: "#eab308",
-  Low: "#22c55e",
+  Critical: "var(--risk-critical)",
+  High: "var(--risk-high)",
+  Medium: "var(--risk-medium)",
+  Low: "var(--risk-low)",
 };
 
 /* ------------------------------------------------------------------ */
@@ -26,14 +27,15 @@ export default function RiskMap({
   showLegend = true,
   compact = false,
 }) {
+  const { isDarkMode } = useTheme();
+
   return (
-    <div className="relative rounded-sm overflow-hidden">
+    <div className="relative rounded-2xl overflow-hidden w-full h-full z-0 border border-border-subtle" style={{ minHeight: height !== "100%" ? height : "400px" }}>
       <MapContainer
         center={[21.1458, 79.0882]}
         zoom={zoom}
         scrollWheelZoom={true}
-        className="w-full"
-        style={{ height }}
+        className="absolute inset-0 w-full h-full"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -42,8 +44,8 @@ export default function RiskMap({
 
         {locations.map((loc) => {
           const color = riskColors[loc.risk_level] || riskColors.Low;
-          const baseRadius = compact ? 5 : 7;
-          const critRadius = compact ? 7 : 10;
+          const baseRadius = compact ? 6 : 8;
+          const critRadius = compact ? 8 : 12;
 
           return (
             <CircleMarker
@@ -51,7 +53,7 @@ export default function RiskMap({
               center={[loc.lat, loc.lng]}
               radius={loc.unmanned_critical ? critRadius : baseRadius}
               pathOptions={{
-                color: loc.unmanned_critical ? "#ffffff" : color,
+                color: loc.unmanned_critical ? (isDarkMode ? "#ffffff" : "#000000") : color,
                 weight: loc.unmanned_critical ? 3 : 2,
                 fillColor: color,
                 fillOpacity: 0.85,

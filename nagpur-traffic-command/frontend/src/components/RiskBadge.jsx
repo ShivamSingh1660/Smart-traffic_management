@@ -1,8 +1,8 @@
 const levelStyles = {
-  Critical: "bg-red-900/50 text-red-400 border border-red-700/40",
-  High: "bg-orange-900/50 text-orange-400 border border-orange-700/40",
-  Medium: "bg-yellow-900/50 text-yellow-400 border border-yellow-700/40",
-  Low: "bg-green-900/50 text-green-400 border border-green-700/40",
+  Critical: "bg-risk-critical-bg text-risk-critical",
+  High: "bg-risk-high-bg text-risk-high",
+  Medium: "bg-risk-medium-bg text-risk-medium",
+  Low: "bg-risk-low-bg text-risk-low",
 };
 
 export default function RiskBadge({ level }) {
@@ -10,7 +10,7 @@ export default function RiskBadge({ level }) {
 
   return (
     <span
-      className={`inline-block px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide rounded-sm ${style}`}
+      className={`inline-block px-3 py-1 text-xs font-bold tracking-wide rounded-full transition-colors ${style}`}
     >
       {level}
     </span>
