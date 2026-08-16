@@ -3,10 +3,12 @@ import {
   getCurrentDeployment, 
   getDeploymentRecommendation, 
   getDeploymentMoves,
-  postOverride
+  postOverride,
+  resetDeployment,
+  getLocationDetail
 } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, RotateCcw, RefreshCw } from "lucide-react";
 
 // Sub-component for individual rows to handle inline states cleanly
 function RecommendationRow({ row, onActionSuccess }) {
@@ -24,9 +26,9 @@ function RecommendationRow({ row, onActionSuccess }) {
     try {
       await postOverride({ junction_id: row.junctionId, action, officers });
       
-      let newCurrent = row.current;
-      if (action === "accept") newCurrent = row.recommended;
-      if (action === "modify") newCurrent = officers;
+      // Re-fetch actual current data from the backend to confirm what was really saved
+      const updatedLoc = await getLocationDetail(row.junctionId);
+      const newCurrent = updatedLoc.police_assigned;
       
       let message = "";
       if (action === "accept") {
@@ -105,7 +107,7 @@ function RecommendationRow({ row, onActionSuccess }) {
         ) : (
           <div className="flex gap-2">
             <button 
-              onClick={() => handleOverride('accept')}
+              onClick={() => handleOverride('accept', row.recommended)}
               className="text-xs font-bold px-3 py-1.5 bg-risk-low-bg hover:opacity-80 text-risk-low rounded-full transition-colors"
             >
               Accept
@@ -132,6 +134,7 @@ function RecommendationRow({ row, onActionSuccess }) {
 export default function Recommendations() {
   const [availableOfficers, setAvailableOfficers] = useState(25);
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [recentActions, setRecentActions] = useState([]);
@@ -198,6 +201,68 @@ export default function Recommendations() {
     });
   };
 
+  const handleReset = async () => {
+    if (!window.confirm("Reset all police assignments to 0? This cannot be undone.")) {
+      return;
+    }
+    setResetting(true);
+    setError(null);
+    try {
+      // 1. Reset all assignments to zero on the backend
+      await resetDeployment();
+
+      // 2. Re-fetch current deployment + fresh recommendation with current officer count
+      const [currentList, recList, movesList] = await Promise.all([
+        getCurrentDeployment(),
+        getDeploymentRecommendation(availableOfficers),
+        getDeploymentMoves(availableOfficers)
+      ]);
+
+      const locMap = {};
+      currentList.forEach(c => {
+        locMap[c.junction_id] = c.name;
+      });
+
+      const rows = currentList.map(c => {
+        const recItem = recList.find(r => r.junction_id === c.junction_id);
+        const rec = recItem ? recItem.recommended_officers : 0;
+        const reason = recItem ? recItem.reason : "N/A";
+        return {
+          junctionId: c.junction_id,
+          name: c.name,
+          riskLevel: c.risk_level,
+          current: c.police_assigned,
+          recommended: rec,
+          reason: reason
+        };
+      });
+
+      rows.sort((a, b) => b.recommended - a.recommended);
+
+      const readableMoves = movesList.map((m, idx) => {
+        const fromName = locMap[m.from_junction_id] || m.from_junction_id;
+        const toName = locMap[m.to_junction_id] || m.to_junction_id;
+        return { id: idx, count: m.count, fromName, toName };
+      });
+
+      setData({ rows, moves: readableMoves });
+
+      // 3. Log the reset action
+      setRecentActions(prev => {
+        const log = {
+          id: Date.now(),
+          text: "Deployment reset to zero",
+          timestamp: new Date().toLocaleTimeString()
+        };
+        return [log, ...prev].slice(0, 10);
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       
@@ -244,12 +309,30 @@ export default function Recommendations() {
           </div>
           <button
             onClick={handleGenerate}
-            disabled={loading}
+            disabled={loading || resetting}
             className="px-8 py-3 bg-text-primary hover:opacity-80 text-bg-app font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center min-w-[220px]"
           >
             {loading ? (
               <span className="animate-pulse">Generating...</span>
             ) : "Generate Recommendation"}
+          </button>
+          <button
+            onClick={handleGenerate}
+            disabled={loading || resetting}
+            className="px-6 py-3 bg-bg-card border border-border-subtle hover:bg-border-subtle text-text-primary font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            title="Refresh current deployment and recommendations"
+          >
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            Refresh
+          </button>
+          <button
+            onClick={handleReset}
+            disabled={resetting || loading}
+            className="px-6 py-3 border-2 border-amber-500/60 text-amber-600 hover:bg-amber-500/10 font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-w-[200px]"
+            title="Reset all police assignments to zero"
+          >
+            <RotateCcw size={16} className={resetting ? "animate-spin" : ""} />
+            {resetting ? "Resetting…" : "Reset Deployment"}
           </button>
         </div>
 

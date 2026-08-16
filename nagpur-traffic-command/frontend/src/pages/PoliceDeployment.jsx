@@ -10,11 +10,8 @@ function getCoverageStatus(loc) {
   if (loc.unmanned_critical) {
     return { label: "Unmanned", color: "text-risk-critical", bg: "bg-risk-critical-bg" };
   }
-  if (
-    loc.police_assigned === 1 &&
-    (loc.risk_level === "High" || loc.risk_level === "Critical")
-  ) {
-    return { label: "Light Coverage", color: "text-risk-high", bg: "bg-risk-high-bg" };
+  if (loc.police_assigned === 0) {
+    return { label: "Unassigned", color: "text-risk-high", bg: "bg-risk-high-bg" };
   }
   return { label: "Covered", color: "text-risk-low", bg: "bg-risk-low-bg" };
 }
@@ -129,23 +126,14 @@ export default function PoliceDeployment() {
             <span className="text-risk-high bg-risk-high-bg px-2.5 py-1 rounded-full">
               {
                 locations.filter(
-                  (l) =>
-                    l.police_assigned === 1 &&
-                    (l.risk_level === "High" || l.risk_level === "Critical")
+                  (l) => !l.unmanned_critical && l.police_assigned === 0
                 ).length
               }{" "}
-              Light
+              Unassigned
             </span>
             <span className="text-risk-low bg-risk-low-bg px-2.5 py-1 rounded-full">
               {
-                locations.filter(
-                  (l) =>
-                    !l.unmanned_critical &&
-                    !(
-                      l.police_assigned === 1 &&
-                      (l.risk_level === "High" || l.risk_level === "Critical")
-                    )
-                ).length
+                locations.filter((l) => l.police_assigned > 0).length
               }{" "}
               Covered
             </span>

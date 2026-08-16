@@ -83,3 +83,23 @@ Response:
   }
 ]
 ```
+
+## POST /deployment/reset
+Resets police_assigned to 0 for ALL locations and recomputes unmanned_critical.
+Use this to start a fresh allocation from zero.
+Request: No body required.
+Response: the full updated list of locations (same shape as GET /locations).
+```json
+[
+  {
+    "junction_id": "j001",
+    "name": "Sitabuldi Junction",
+    "lat": 21.1498,
+    "lng": 79.0806,
+    "risk_score": 92,
+    "risk_level": "Critical",
+    "police_assigned": 0,
+    "unmanned_critical": true
+  }
+]
+```

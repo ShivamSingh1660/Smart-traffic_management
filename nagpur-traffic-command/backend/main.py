@@ -465,3 +465,25 @@ def override_deployment(body: OverrideRequest, db: Session = Depends(get_db)):
     db.refresh(loc)
 
     return _location_summary(loc)
+
+
+# ---------------------------------------------------------------------------
+#  POST /deployment/reset
+# ---------------------------------------------------------------------------
+
+
+@app.post("/deployment/reset")
+def reset_deployment(db: Session = Depends(get_db)):
+    """
+    Reset ALL locations: set police_assigned to 0 and recompute
+    unmanned_critical for each. Returns the full updated location list.
+    """
+    locations = db.query(Location).all()
+    for loc in locations:
+        loc.police_assigned = 0
+        loc.unmanned_critical = _compute_unmanned_critical(loc.risk_level, 0)
+    db.commit()
+
+    # Re-query to get refreshed state, ordered by risk
+    locations = db.query(Location).order_by(Location.risk_score.desc()).all()
+    return [_location_summary(loc) for loc in locations]

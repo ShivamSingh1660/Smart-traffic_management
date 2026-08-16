@@ -77,3 +77,9 @@ export function postOverride(payload) {
     body: JSON.stringify(payload),
   });
 }
+
+export function resetDeployment() {
+  return request("/deployment/reset", {
+    method: "POST",
+  });
+}
