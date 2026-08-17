@@ -141,7 +141,7 @@ export default function Dashboard() {
       {/* Two-column: risk list + map */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* ---- Top 5 High-Risk Locations ---- */}
-        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden flex flex-col">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden flex flex-col transition-colors duration-200">
           <div className="px-8 py-6 border-b border-border-subtle">
             <h2 className="text-text-primary font-bold text-xl">
               Top 5 High-Risk Locations
@@ -189,7 +189,7 @@ export default function Dashboard() {
         </div>
 
         {/* ---- Live Risk Map ---- */}
-        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden flex flex-col min-h-[400px]">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden flex flex-col min-h-[400px] transition-colors duration-200">
           <div className="px-8 py-6 border-b border-border-subtle relative z-10 bg-bg-card backdrop-blur-xl backdrop-saturate-150">
             <h2 className="text-text-primary font-bold text-xl">
               Live Risk Map

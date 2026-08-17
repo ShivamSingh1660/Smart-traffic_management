@@ -58,6 +58,7 @@ export default function RiskMap({
                 fillColor: color,
                 fillOpacity: 0.85,
                 dashArray: loc.unmanned_critical ? "4 3" : undefined,
+                className: "transition-all duration-200 hover:brightness-125 hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.5)] cursor-pointer"
               }}
             >
               <Popup>

@@ -42,10 +42,10 @@ function Sidebar() {
             to={item.to}
             end={item.to === "/"}
             className={({ isActive }) => 
-              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+              `flex items-center gap-3 px-4 py-3 rounded-xl border-l-4 transition-colors duration-150 cursor-pointer ${
                 isActive 
-                  ? "bg-bg-card backdrop-blur-xl backdrop-saturate-150 shadow-[var(--shadow-card)] text-text-primary font-semibold" 
-                  : "text-text-secondary hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover hover:text-text-primary font-medium"
+                  ? "border-sky-400 bg-bg-card backdrop-blur-xl backdrop-saturate-150 text-text-primary font-bold shadow-sm" 
+                  : "border-transparent text-text-secondary hover:bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover hover:text-text-primary font-medium"
               }`
             }
           >

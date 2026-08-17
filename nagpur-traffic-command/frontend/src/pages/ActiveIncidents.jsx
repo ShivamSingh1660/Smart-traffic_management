@@ -160,7 +160,7 @@ export default function ActiveIncidents() {
         
         {/* Left Column: Incidents List */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden transition-colors duration-200">
             <div className="px-8 py-6 border-b border-border-subtle flex justify-between items-center">
               <h2 className="text-text-primary font-bold text-xl">
                 Live Feed
@@ -209,7 +209,7 @@ export default function ActiveIncidents() {
         <div className="space-y-8">
           
           {/* Form */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-8 transition-colors duration-200">
             <h2 className="text-text-primary font-bold text-xl mb-6">
               Inject New Incident
             </h2>
@@ -267,7 +267,7 @@ export default function ActiveIncidents() {
           </div>
 
           {/* Logs */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden flex flex-col max-h-[300px]">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden flex flex-col max-h-[300px] transition-colors duration-200">
             <div className="px-8 py-6 border-b border-border-subtle">
               <h2 className="text-text-primary font-bold text-xl">
                 Injection Log

@@ -74,7 +74,7 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
   };
 
   return (
-    <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border-2 border-risk-critical overflow-hidden mb-8">
+    <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-6 relative overflow-hidden transition-colors duration-200">
       <div className="px-6 py-4 bg-risk-critical/10 border-b border-risk-critical/20 flex items-center gap-3">
         <AlertOctagon className="text-risk-critical" size={24} strokeWidth={2} />
         <h2 className="text-xl font-bold text-risk-critical tracking-tight">Emergency Dispatch</h2>
@@ -137,7 +137,7 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
           <button
             type="submit"
             disabled={dispatching || reserveLoading}
-            className="w-full sm:w-auto px-6 py-2.5 bg-risk-critical hover:bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-risk-critical/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            className="w-full py-4 rounded-xl bg-risk-critical hover:opacity-90 text-white font-extrabold text-lg flex items-center justify-center gap-3 transition-opacity shadow-lg shadow-risk-critical/20 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
           >
             {dispatching ? "Dispatching..." : "Dispatch Emergency"}
           </button>

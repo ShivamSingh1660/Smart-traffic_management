@@ -111,7 +111,7 @@ export default function PoliceDeployment() {
 
       {/* Summary strip */}
       {!loading && !error && (
-        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-6 flex flex-wrap items-center gap-8">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-6 flex flex-wrap items-center gap-8 transition-colors duration-200">
           <div className="flex items-center gap-3">
             <span className="text-text-secondary text-sm font-medium">
               Total Officers Deployed
@@ -171,7 +171,7 @@ export default function PoliceDeployment() {
       )}
 
       {/* Table */}
-      <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
+      <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden transition-colors duration-200">
         {loading ? (
           <div className="flex items-center justify-center h-48">
             <p className="text-text-secondary text-sm animate-pulse font-medium">

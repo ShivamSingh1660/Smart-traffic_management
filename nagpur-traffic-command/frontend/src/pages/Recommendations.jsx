@@ -268,7 +268,7 @@ export default function Recommendations() {
       
       {/* Persistent Recent Actions Log */}
       {recentActions.length > 0 && (
-        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden transition-colors duration-200">
           <div className="px-8 py-4 border-b border-border-subtle flex justify-between items-center">
             <h2 className="text-text-primary font-bold text-sm uppercase tracking-wider">
               Recent Actions Log
@@ -347,7 +347,7 @@ export default function Recommendations() {
       {data && (
         <div className="space-y-8">
           {/* Table */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-x-auto">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-x-auto transition-colors duration-200">
             <div className="px-8 py-6 border-b border-border-subtle">
               <h2 className="text-text-primary font-bold text-xl">
                 Deployment Comparison & Overrides
@@ -377,7 +377,7 @@ export default function Recommendations() {
           </div>
 
           {/* Suggested Moves Panel */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden transition-colors duration-200">
             <div className="px-8 py-6 border-b border-border-subtle">
               <h2 className="text-text-primary font-bold text-xl">
                 Suggested Moves

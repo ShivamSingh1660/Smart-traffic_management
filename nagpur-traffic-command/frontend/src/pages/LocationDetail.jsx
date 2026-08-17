@@ -79,7 +79,7 @@ export default function LocationDetail() {
       </Link>
       
       {/* Header Section */}
-      <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors duration-200">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">{location.name}</h1>
@@ -107,7 +107,7 @@ export default function LocationDetail() {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Why this score panel */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-8 transition-colors duration-200">
             <h2 className="text-text-primary font-bold text-xl mb-6">
               Why this score? (Top Contributors)
             </h2>
@@ -138,7 +138,7 @@ export default function LocationDetail() {
           </div>
 
           {/* Recent Incidents panel */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden transition-colors duration-200">
              <div className="px-8 py-6 border-b border-border-subtle">
               <h2 className="text-text-primary font-bold text-xl">
                 Recent Incidents
@@ -179,7 +179,7 @@ export default function LocationDetail() {
         <div className="space-y-8">
           
           {/* Coverage panel */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-8 transition-colors duration-200">
             <h2 className="text-text-primary font-bold text-xl mb-6">
               Coverage
             </h2>
@@ -202,7 +202,7 @@ export default function LocationDetail() {
           </div>
 
           {/* Mini-map */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden transition-colors duration-200">
             <div className="px-8 py-6 border-b border-border-subtle">
               <h2 className="text-text-primary font-bold text-xl">
                 Location Map

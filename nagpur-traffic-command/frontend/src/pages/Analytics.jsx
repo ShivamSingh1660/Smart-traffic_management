@@ -165,7 +165,7 @@ export default function Analytics() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Panel 1: Risk Level Distribution */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-8 transition-colors duration-200">
             <h2 className="text-text-primary font-bold text-xl mb-2">
               Risk Level Distribution
             </h2>
@@ -206,7 +206,7 @@ export default function Analytics() {
           </div>
 
           {/* Panel 2: Incident Type Breakdown */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-8 transition-colors duration-200">
             <h2 className="text-text-primary font-bold text-xl mb-2">
               Incident Type Breakdown
             </h2>
@@ -273,7 +273,7 @@ export default function Analytics() {
           </div>
 
           {/* Panel 3: Model Info */}
-          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] p-8 lg:col-span-2">
+          <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 p-8 lg:col-span-2 transition-colors duration-200">
             <h2 className="text-text-primary font-bold text-xl mb-2">
               Model Info
             </h2>
