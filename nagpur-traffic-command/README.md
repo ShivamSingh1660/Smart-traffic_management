@@ -10,7 +10,8 @@ The Nagpur Traffic Police operate with limited personnel to monitor numerous jun
 - **Interactive Map:** A live React-Leaflet map displaying color-coded junctions, real-time risk layers, and explicit flags for high-risk unmanned locations.
 - **Ranking & Location Detail:** A ranked feed of all monitored junctions with historical incident logs and detailed risk breakdown.
 - **Deployment Recommendation:** A proportional + minimum-guarantee allocation algorithm that intelligently distributes available officers based on risk tiers and active incidents.
-- **Dynamic Incident Simulation:** A tool to inject simulated incidents (accidents, congestion, etc.) to watch the system dynamically recalculate risk and deployment needs in real-time.
+- **Dynamic Incident Simulation & Resolution:** A tool to inject simulated incidents (accidents, congestion, etc.) to watch the system dynamically recalculate risk and deployment needs in real-time. Incidents can be "Resolved" to mathematically reverse their risk impact and restore the baseline ML score.
+- **Dynamic Force Size:** Total police force size can be dynamically set by the operator on the fly, flowing seamlessly into deployment math without artificial hard caps.
 - **Emergency Dispatch:** An urgent dispatch system that pulls officers from a dedicated reserve pool first, falls back to borrowing from Low-risk locations if necessary, and automatically returns them to their original sources once the emergency is resolved.
 - **Manual Override:** Allows operators to explicitly Accept, Modify, or Reject AI recommendations with an auditable log.
 
@@ -104,6 +105,12 @@ npm install
 npm run dev
 ```
 Visit `http://localhost:5173` in your browser.
+
+## Cloud Deployment
+
+This project is configured for easy deployment on free-tier cloud providers:
+- **Frontend (Vercel):** The `frontend/vercel.json` file automatically rewrites all routes to `index.html` to perfectly support React Router's client-side routing on Vercel.
+- **Backend (Render):** Because Render's free tier uses an ephemeral filesystem that wipes SQLite databases on every restart, `backend/main.py` includes a custom `@app.on_event("startup")` hook that automatically checks for an empty database and self-seeds the initial 18 locations, features, and incidents, ensuring seamless continuous deployments.
 
 ## Team & Contributions
 
