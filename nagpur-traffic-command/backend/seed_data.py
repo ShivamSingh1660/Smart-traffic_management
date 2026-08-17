@@ -152,6 +152,24 @@ INCIDENTS = [
 #  Seed function
 # ---------------------------------------------------------------------------
 
+def seed_database(db):
+    # Locations
+    for loc_data in LOCATIONS:
+        db.add(Location(**loc_data))
+
+    # Risk factors
+    for rf_data in RISK_FACTORS:
+        db.add(RiskFactor(**rf_data))
+
+    # Incidents
+    for inc_data in INCIDENTS:
+        db.add(Incident(**inc_data))
+
+    db.commit()
+    print(f"[OK] Seeded {len(LOCATIONS)} locations")
+    print(f"[OK] Seeded {len(RISK_FACTORS)} risk factors")
+    print(f"[OK] Seeded {len(INCIDENTS)} incidents")
+
 def seed():
     # Create all tables
     Base.metadata.drop_all(bind=engine)
@@ -159,22 +177,7 @@ def seed():
 
     db = SessionLocal()
     try:
-        # Locations
-        for loc_data in LOCATIONS:
-            db.add(Location(**loc_data))
-
-        # Risk factors
-        for rf_data in RISK_FACTORS:
-            db.add(RiskFactor(**rf_data))
-
-        # Incidents
-        for inc_data in INCIDENTS:
-            db.add(Incident(**inc_data))
-
-        db.commit()
-        print(f"[OK] Seeded {len(LOCATIONS)} locations")
-        print(f"[OK] Seeded {len(RISK_FACTORS)} risk factors")
-        print(f"[OK] Seeded {len(INCIDENTS)} incidents")
+        seed_database(db)
         print("[OK] Database ready at app.db")
     except Exception as e:
         db.rollback()

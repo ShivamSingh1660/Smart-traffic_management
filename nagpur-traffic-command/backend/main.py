@@ -43,6 +43,25 @@ app = FastAPI(
     version="0.1.0",
 )
 
+@app.on_event("startup")
+def startup_event():
+    from database import SessionLocal
+    from seed_data import seed_database
+    
+    db = SessionLocal()
+    try:
+        count = db.query(Location).count()
+        if count == 0:
+            print("Database empty - seeding 18 locations...")
+            seed_database(db)
+            print("Seeding complete.")
+        else:
+            print("Database already has data, skipping seed.")
+    except Exception as e:
+        print(f"Error during startup seeding: {e}")
+    finally:
+        db.close()
+
 # CORS — allow the Vite dev server
 app.add_middleware(
     CORSMiddleware,
