@@ -5,10 +5,11 @@ import {
   getDeploymentMoves,
   postOverride,
   resetDeployment,
-  getLocationDetail
+  getLocationDetail,
+  applyAllRecommendations
 } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
-import { Check, ArrowRight, RotateCcw, RefreshCw } from "lucide-react";
+import { Check, ArrowRight, RotateCcw, RefreshCw, CheckCircle } from "lucide-react";
 
 // Sub-component for individual rows to handle inline states cleanly
 function RecommendationRow({ row, onActionSuccess }) {
@@ -135,6 +136,7 @@ export default function Recommendations() {
   const [availableOfficers, setAvailableOfficers] = useState(25);
   const [loading, setLoading] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [applyingAll, setApplyingAll] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [recentActions, setRecentActions] = useState([]);
@@ -263,6 +265,34 @@ export default function Recommendations() {
     }
   };
 
+  const handleApplyAll = async () => {
+    if (!data || !data.rows) return;
+    if (!window.confirm(`Apply the full recommendation across all ${data.rows.length} locations? This will overwrite current assignments to match the AI recommendation.`)) {
+      return;
+    }
+    setApplyingAll(true);
+    setError(null);
+    try {
+      await applyAllRecommendations(availableOfficers);
+      
+      // Re-fetch the table so Current matches Recommended
+      await handleGenerate();
+      
+      setRecentActions(prev => {
+        const log = {
+          id: Date.now(),
+          text: "Applied full recommendation to all locations",
+          timestamp: new Date().toLocaleTimeString()
+        };
+        return [log, ...prev].slice(0, 10);
+      });
+    } catch (err) {
+      setError("Failed to apply all: " + err.message);
+    } finally {
+      setApplyingAll(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       
@@ -309,7 +339,7 @@ export default function Recommendations() {
           </div>
           <button
             onClick={handleGenerate}
-            disabled={loading || resetting}
+            disabled={loading || resetting || applyingAll}
             className="px-8 py-3 bg-text-primary hover:opacity-80 text-bg-app font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center min-w-[220px]"
           >
             {loading ? (
@@ -317,8 +347,17 @@ export default function Recommendations() {
             ) : "Generate Recommendation"}
           </button>
           <button
+            onClick={handleApplyAll}
+            disabled={loading || resetting || applyingAll || !data}
+            className="px-6 py-3 bg-risk-low hover:bg-green-600 text-bg-app font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-risk-low/20"
+            title="Apply the full recommendation across all locations atomically"
+          >
+            <CheckCircle size={16} />
+            {applyingAll ? "Applying..." : "Apply Full Recommendation"}
+          </button>
+          <button
             onClick={handleGenerate}
-            disabled={loading || resetting}
+            disabled={loading || resetting || applyingAll}
             className="px-6 py-3 bg-bg-card border border-border-subtle hover:bg-border-subtle text-text-primary font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             title="Refresh current deployment and recommendations"
           >
@@ -327,7 +366,7 @@ export default function Recommendations() {
           </button>
           <button
             onClick={handleReset}
-            disabled={resetting || loading}
+            disabled={resetting || loading || applyingAll}
             className="px-6 py-3 border-2 border-amber-500/60 text-amber-600 hover:bg-amber-500/10 font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-w-[200px]"
             title="Reset all police assignments to zero"
           >
@@ -348,10 +387,13 @@ export default function Recommendations() {
         <div className="space-y-8">
           {/* Table */}
           <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-x-auto transition-colors duration-200">
-            <div className="px-8 py-6 border-b border-border-subtle">
-              <h2 className="text-text-primary font-bold text-xl">
+            <div className="px-8 py-6 border-b border-border-subtle sm:flex sm:justify-between sm:items-center">
+              <h2 className="text-text-primary font-bold text-xl mb-2 sm:mb-0">
                 Deployment Comparison & Overrides
               </h2>
+              <span className="text-xs text-text-tertiary font-medium bg-black/20 px-3 py-1.5 rounded-lg border border-border-subtle">
+                💡 Tip: If an individual action fails due to full capacity, use 'Apply Full Recommendation' above to reallocate everything at once.
+              </span>
             </div>
             <table className="w-full text-sm text-left whitespace-nowrap">
               <thead>

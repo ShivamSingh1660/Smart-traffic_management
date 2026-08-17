@@ -16,6 +16,7 @@ from database import engine, get_db, Base
 from models import Location, Incident, RiskFactor, OverrideLog, EmergencyDispatch
 
 TOTAL_FORCE_SIZE = 25
+MAX_OFFICERS_PER_LOCATION = 8
 
 # ---------------------------------------------------------------------------
 #  ML risk engine — loaded ONCE at module import time (not per request)
@@ -89,6 +90,10 @@ class EmergencyRequest(BaseModel):
     officers_needed: int
 
 
+class ApplyAllRequest(BaseModel):
+    available_officers: int
+
+
 # ---------------------------------------------------------------------------
 #  Helpers
 # ---------------------------------------------------------------------------
@@ -104,6 +109,11 @@ def _compute_risk_level(score: int) -> str:
         return "Medium"
     else:
         return "Low"
+
+
+def get_total_deployed(db: Session) -> int:
+    from sqlalchemy.sql import func
+    return db.query(func.sum(Location.police_assigned)).scalar() or 0
 
 
 def _compute_unmanned_critical(risk_level: str, police_assigned: int) -> bool:
@@ -454,16 +464,33 @@ def override_deployment(body: OverrideRequest, db: Session = Depends(get_db)):
             # Use recommended_police heuristic as fallback
             # STUB: this heuristic will be replaced by real recommendation data
             if loc.risk_level == "Critical":
-                loc.police_assigned = 3
+                new_officers = 3
             elif loc.risk_level == "High":
-                loc.police_assigned = 2
+                new_officers = 2
             elif loc.risk_level == "Medium":
-                loc.police_assigned = 1
+                new_officers = 1
             else:
-                loc.police_assigned = 0
+                new_officers = 0
         else:
-            loc.police_assigned = body.officers
+            new_officers = body.officers
 
+        diff = new_officers - loc.police_assigned
+        
+        if new_officers > MAX_OFFICERS_PER_LOCATION:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot assign {new_officers} officers to a single location - maximum is {MAX_OFFICERS_PER_LOCATION} per location to ensure reasonable coverage distribution across the city."
+            )
+            
+        if diff > 0:
+            total_deployed = get_total_deployed(db)
+            if total_deployed + diff > TOTAL_FORCE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Cannot assign {new_officers} officers - would exceed total force size of {TOTAL_FORCE_SIZE}. Currently {total_deployed} officers are deployed."
+                )
+
+        loc.police_assigned = new_officers
         loc.unmanned_critical = _compute_unmanned_critical(loc.risk_level, loc.police_assigned)
 
     # action == "reject" → no change to police_assigned
@@ -480,6 +507,32 @@ def override_deployment(body: OverrideRequest, db: Session = Depends(get_db)):
     db.refresh(loc)
 
     return _location_summary(loc)
+
+
+# ---------------------------------------------------------------------------
+#  POST /deployment/apply-all
+# ---------------------------------------------------------------------------
+
+
+@app.post("/deployment/apply-all")
+def apply_all_recommendations(body: ApplyAllRequest, db: Session = Depends(get_db)):
+    """
+    Applies the full recommendation across all locations simultaneously.
+    """
+    locations = db.query(Location).all()
+    recommendation = allocate_officers(locations, body.available_officers)
+    
+    recommended_deployment = {item["junction_id"]: item["recommended_officers"] for item in recommendation}
+    
+    for loc in locations:
+        rec_val = recommended_deployment.get(loc.junction_id, 0)
+        loc.police_assigned = rec_val
+        loc.unmanned_critical = _compute_unmanned_critical(loc.risk_level, loc.police_assigned)
+        
+    db.commit()
+    
+    updated_locations = db.query(Location).order_by(Location.risk_score.desc()).all()
+    return [_location_summary(loc) for loc in updated_locations]
 
 
 # ---------------------------------------------------------------------------

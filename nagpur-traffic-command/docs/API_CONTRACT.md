@@ -130,3 +130,11 @@ Response:
   "new_police_assigned": 3
 }
 ```
+
+## POST /deployment/apply-all
+Applies the full recommendation across all locations simultaneously. This overwrites the current police assignment at every location with the recommended values, maintaining the total force limit constraint in a single transaction.
+Request:
+```json
+{ "available_officers": 25 }
+```
+Response: the full updated list of locations (same shape as GET /locations).

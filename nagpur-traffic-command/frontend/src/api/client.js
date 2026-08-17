@@ -84,6 +84,14 @@ export function resetDeployment() {
   });
 }
 
+export function applyAllRecommendations(availableOfficers) {
+  return request("/deployment/apply-all", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ available_officers: availableOfficers }),
+  });
+}
+
 export function getReservePool() {
   return request("/deployment/reserve");
 }
