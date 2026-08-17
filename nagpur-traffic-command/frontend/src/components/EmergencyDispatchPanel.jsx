@@ -165,7 +165,9 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
                 </p>
                 {dispatchResult.fulfilled < dispatchResult.requested && (
                   <p className="text-risk-high text-sm font-semibold mt-1">
-                    Only {dispatchResult.fulfilled} could be supplied - insufficient reserve and low-risk coverage available.
+                    {dispatchResult.message && dispatchResult.message !== "Success"
+                      ? dispatchResult.message
+                      : `Only ${dispatchResult.fulfilled} could be supplied - insufficient reserve and low-risk coverage available.`}
                   </p>
                 )}
               </div>

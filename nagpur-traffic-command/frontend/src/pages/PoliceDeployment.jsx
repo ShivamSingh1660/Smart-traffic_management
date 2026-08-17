@@ -5,7 +5,7 @@ import RiskBadge from "../components/RiskBadge";
 import EmergencyDispatchPanel from "../components/EmergencyDispatchPanel";
 import { RefreshCw, ShieldAlert } from "lucide-react";
 
-const TOTAL_AVAILABLE_OFFICERS = 25;
+const TOTAL_AVAILABLE_OFFICERS = 60;
 
 function getCoverageStatus(loc) {
   if (loc.unmanned_critical) {

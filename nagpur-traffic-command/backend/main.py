@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from database import engine, get_db, Base
 from models import Location, Incident, RiskFactor, OverrideLog, EmergencyDispatch
 
-TOTAL_FORCE_SIZE = 25
+TOTAL_FORCE_SIZE = 60
 MAX_OFFICERS_PER_LOCATION = 8
 
 # ---------------------------------------------------------------------------

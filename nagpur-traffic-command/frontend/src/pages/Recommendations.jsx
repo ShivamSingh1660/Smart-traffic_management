@@ -133,7 +133,7 @@ function RecommendationRow({ row, onActionSuccess }) {
 }
 
 export default function Recommendations() {
-  const [availableOfficers, setAvailableOfficers] = useState(25);
+  const [availableOfficers, setAvailableOfficers] = useState(60);
   const [loading, setLoading] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [applyingAll, setApplyingAll] = useState(false);
