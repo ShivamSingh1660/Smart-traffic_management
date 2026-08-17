@@ -3,7 +3,7 @@
  * All functions throw on non-ok responses with a descriptive error message.
  */
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 async function request(path, options = {}) {
   let res;
