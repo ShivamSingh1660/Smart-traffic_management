@@ -96,7 +96,7 @@ export default function RiskHeatmap() {
       )}
 
       {!loading && !error && (
-        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden flex-1 min-h-[500px] transition-colors duration-200">
+        <div className="bg-bg-card backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-[var(--shadow-card)] border border-transparent hover:border-amber-500 overflow-hidden flex-1 flex flex-col min-h-[500px] transition-colors duration-200">
           <RiskMap
             locations={locations}
             height="100%"

@@ -30,7 +30,13 @@ export default function RiskMap({
   const { isDarkMode } = useTheme();
 
   return (
-    <div className="relative rounded-2xl overflow-hidden w-full h-full z-0 border border-border-subtle" style={{ minHeight: height !== "100%" ? height : "400px" }}>
+    <div 
+      className="relative w-full h-full flex-1 z-0 p-0 m-0" 
+      style={{ 
+        height: height !== "100%" ? height : "100%", 
+        minHeight: height !== "100%" ? height : "400px" 
+      }}
+    >
       <MapContainer
         center={[21.1458, 79.0882]}
         zoom={zoom}
