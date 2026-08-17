@@ -82,7 +82,7 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
 
       <div className="p-6">
         {/* Reserve Pool Display */}
-        <div className="mb-6 p-4 bg-black/20 rounded-xl border border-border-subtle flex items-center justify-between">
+        <div className="mb-6 p-4 bg-bg-content rounded-xl border border-border-subtle flex items-center justify-between">
           <div className="flex items-center gap-3">
             <ShieldAlert className="text-text-secondary" size={20} />
             <span className="font-semibold text-text-primary">Reserve Pool Status</span>
@@ -108,7 +108,7 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
             <select
               value={selectedJunction}
               onChange={(e) => setSelectedJunction(e.target.value)}
-              className="w-full bg-black/40 border border-border-subtle rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-risk-critical transition-colors truncate"
+              className="w-full bg-bg-content border border-border-subtle rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-risk-critical transition-colors truncate"
               required
             >
               {locations.map((loc) => (
@@ -129,7 +129,7 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
               max="50"
               value={officersNeeded}
               onChange={(e) => setOfficersNeeded(e.target.value)}
-              className="w-full bg-black/40 border border-border-subtle rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-risk-critical transition-colors"
+              className="w-full bg-bg-content border border-border-subtle rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-risk-critical transition-colors"
               required
             />
           </div>
@@ -151,7 +151,7 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
 
         {/* Dispatch Result */}
         {dispatchResult && (
-          <div className="p-5 bg-[#1a2e1d] border border-[#2e5c36] rounded-xl">
+          <div className="p-5 bg-risk-low/10 border border-risk-low/30 rounded-xl">
             <div className="flex items-start gap-3 mb-3">
               {dispatchResult.fulfilled < dispatchResult.requested ? (
                  <AlertTriangle className="text-risk-high mt-0.5" size={20} />
@@ -180,7 +180,8 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
                   } else {
                      const locMatch = locations.find(l => l.junction_id === src.from);
                      const srcName = locMatch ? locMatch.name : src.from;
-                     return <li key={idx} className="text-sm text-text-primary flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-risk-low"></div> {src.count} from {srcName} (Low risk)</li>;
+                     const tierName = src.tier ? src.tier : "Low risk";
+                     return <li key={idx} className="text-sm text-text-primary flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-risk-low"></div> {src.count} from {srcName} ({tierName})</li>;
                   }
                 })}
                 {dispatchResult.sources.length === 0 && (
