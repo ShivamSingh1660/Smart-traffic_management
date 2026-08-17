@@ -12,12 +12,19 @@ export default function Dashboard() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [autoReturns, setAutoReturns] = useState([]);
 
   const fetchData = () => {
     setLoading(true);
+    setAutoReturns([]);
     getLocations()
       .then((data) => {
-        setLocations(data);
+        setLocations(data.locations || []);
+        if (data.auto_returns && data.auto_returns.length > 0) {
+          setAutoReturns(data.auto_returns);
+          // auto hide after 5s
+          setTimeout(() => setAutoReturns([]), 5000);
+        }
         setLoading(false);
         setError(null);
       })
@@ -78,6 +85,25 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Auto-Returns Toast */}
+      {autoReturns.length > 0 && (
+        <div className="bg-risk-low/10 border border-risk-low/30 p-4 rounded-xl shadow-lg mb-6 flex items-start gap-3">
+          <div className="text-risk-low font-bold">
+            <ShieldAlert size={20} />
+          </div>
+          <div>
+            <h3 className="text-risk-low font-bold text-sm">AI auto-returned {autoReturns.reduce((sum, r) => sum + r.count, 0)} officer(s)</h3>
+            <ul className="text-sm text-text-primary mt-1 space-y-1">
+              {autoReturns.map((r, i) => (
+                <li key={i}>
+                  [{r.to_junction}] risk resolved, officers sent back to [{r.from_junction}].
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* Page heading */}
       <div className="flex justify-between items-end mb-12">
         <div>

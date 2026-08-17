@@ -12,7 +12,7 @@ import {
   PieChart,
   Pie,
 } from "recharts";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ShieldAlert } from "lucide-react";
 
 const RISK_COLORS = {
   Low: "var(--risk-low)",
@@ -54,13 +54,19 @@ export default function Analytics() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [autoReturns, setAutoReturns] = useState([]);
 
   const fetchData = useCallback(() => {
     setLoading(true);
     setError(null);
+    setAutoReturns([]);
     Promise.all([getLocations(), getIncidents()])
-      .then(([locs, incs]) => {
-        setLocations(locs);
+      .then(([locsData, incs]) => {
+        setLocations(locsData.locations || []);
+        if (locsData.auto_returns && locsData.auto_returns.length > 0) {
+          setAutoReturns(locsData.auto_returns);
+          setTimeout(() => setAutoReturns([]), 5000);
+        }
         setIncidents(incs);
         setLoading(false);
       })
@@ -100,6 +106,25 @@ export default function Analytics() {
 
   return (
     <div className="space-y-8">
+      {/* Auto-Returns Toast */}
+      {autoReturns.length > 0 && (
+        <div className="bg-risk-low/10 border border-risk-low/30 p-4 rounded-xl shadow-lg mb-6 flex items-start gap-3">
+          <div className="text-risk-low font-bold">
+            <ShieldAlert size={20} />
+          </div>
+          <div>
+            <h3 className="text-risk-low font-bold text-sm">AI auto-returned {autoReturns.reduce((sum, r) => sum + r.count, 0)} officer(s)</h3>
+            <ul className="text-sm text-text-primary mt-1 space-y-1">
+              {autoReturns.map((r, i) => (
+                <li key={i}>
+                  [{r.to_junction}] risk resolved, officers sent back to [{r.from_junction}].
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
         <div>

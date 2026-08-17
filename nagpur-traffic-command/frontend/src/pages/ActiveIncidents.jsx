@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getIncidents, getLocations, postIncident, getLocationDetail } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ShieldAlert } from "lucide-react";
 
 export default function ActiveIncidents() {
   const [incidents, setIncidents] = useState([]);
@@ -9,6 +9,7 @@ export default function ActiveIncidents() {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [autoReturns, setAutoReturns] = useState([]);
 
   const [formJunction, setFormJunction] = useState("");
   const [formType, setFormType] = useState("accident");
@@ -26,9 +27,15 @@ export default function ActiveIncidents() {
         getLocations()
       ]);
       setIncidents(incidentsData);
-      setLocations(locationsData);
-      if (locationsData.length > 0 && !formJunction) {
-        setFormJunction(locationsData[0].junction_id);
+      setLocations(locationsData.locations || []);
+      
+      if (locationsData.auto_returns && locationsData.auto_returns.length > 0) {
+        setAutoReturns(locationsData.auto_returns);
+        setTimeout(() => setAutoReturns([]), 5000);
+      }
+      
+      if (locationsData.locations && locationsData.locations.length > 0 && !formJunction) {
+        setFormJunction(locationsData.locations[0].junction_id);
       }
       setError(null);
     } catch (err) {
@@ -113,6 +120,25 @@ export default function ActiveIncidents() {
           Refresh
         </button>
       </div>
+
+      {/* Auto-Returns Toast */}
+      {autoReturns.length > 0 && (
+        <div className="bg-risk-low/10 border border-risk-low/30 p-4 rounded-xl shadow-lg mb-6 flex items-start gap-3">
+          <div className="text-risk-low font-bold">
+            <ShieldAlert size={20} />
+          </div>
+          <div>
+            <h3 className="text-risk-low font-bold text-sm">AI auto-returned {autoReturns.reduce((sum, r) => sum + r.count, 0)} officer(s)</h3>
+            <ul className="text-sm text-text-primary mt-1 space-y-1">
+              {autoReturns.map((r, i) => (
+                <li key={i}>
+                  [{r.to_junction}] risk resolved, officers sent back to [{r.from_junction}].
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notification */}
       {toastMessage && (

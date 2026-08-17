@@ -87,3 +87,15 @@ class OverrideLog(Base):
     officers = Column(Integer, nullable=True)
     timestamp = Column(DateTime, nullable=False)
     note = Column(Text, nullable=True)
+
+
+class EmergencyDispatch(Base):
+    __tablename__ = "emergency_dispatches"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    to_junction_id = Column(String, ForeignKey("locations.junction_id"), nullable=False)
+    from_source = Column(String, nullable=False)
+    officer_count = Column(Integer, nullable=False)
+    timestamp = Column(DateTime, nullable=False)
+    status = Column(String, nullable=False)
+    trigger_risk_level = Column(String, nullable=False)

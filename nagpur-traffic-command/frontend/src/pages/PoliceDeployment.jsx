@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLocations } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
-import { RefreshCw } from "lucide-react";
+import EmergencyDispatchPanel from "../components/EmergencyDispatchPanel";
+import { RefreshCw, ShieldAlert } from "lucide-react";
 
 const TOTAL_AVAILABLE_OFFICERS = 25;
 
@@ -20,15 +21,21 @@ export default function PoliceDeployment() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [autoReturns, setAutoReturns] = useState([]);
   const [sortBy, setSortBy] = useState("police"); // "police" | "risk"
   const navigate = useNavigate();
 
   const fetchData = useCallback(() => {
     setLoading(true);
     setError(null);
+    setAutoReturns([]);
     getLocations()
       .then((data) => {
-        setLocations(data);
+        setLocations(data.locations || []);
+        if (data.auto_returns && data.auto_returns.length > 0) {
+          setAutoReturns(data.auto_returns);
+          setTimeout(() => setAutoReturns([]), 5000);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -79,6 +86,28 @@ export default function PoliceDeployment() {
           {loading ? "Refreshing…" : "Refresh"}
         </button>
       </div>
+
+      {/* Auto-Returns Toast */}
+      {autoReturns.length > 0 && (
+        <div className="bg-risk-low/10 border border-risk-low/30 p-4 rounded-xl shadow-lg mb-6 flex items-start gap-3">
+          <div className="text-risk-low font-bold">
+            <ShieldAlert size={20} />
+          </div>
+          <div>
+            <h3 className="text-risk-low font-bold text-sm">AI auto-returned {autoReturns.reduce((sum, r) => sum + r.count, 0)} officer(s)</h3>
+            <ul className="text-sm text-text-primary mt-1 space-y-1">
+              {autoReturns.map((r, i) => (
+                <li key={i}>
+                  [{r.to_junction}] risk resolved, officers sent back to [{r.from_junction}].
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Emergency Dispatch Panel */}
+      <EmergencyDispatchPanel onDispatchSuccess={fetchData} />
 
       {/* Summary strip */}
       {!loading && !error && (

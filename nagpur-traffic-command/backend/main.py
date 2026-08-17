@@ -13,7 +13,9 @@ from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
 from database import engine, get_db, Base
-from models import Location, Incident, RiskFactor, OverrideLog
+from models import Location, Incident, RiskFactor, OverrideLog, EmergencyDispatch
+
+TOTAL_FORCE_SIZE = 25
 
 # ---------------------------------------------------------------------------
 #  ML risk engine — loaded ONCE at module import time (not per request)
@@ -80,6 +82,11 @@ class OverrideRequest(BaseModel):
         if v.lower() not in allowed:
             raise ValueError(f"action must be one of {allowed}")
         return v.lower()
+
+
+class EmergencyRequest(BaseModel):
+    junction_id: str
+    officers_needed: int
 
 
 # ---------------------------------------------------------------------------
@@ -218,8 +225,16 @@ async def health():
 
 @app.get("/locations")
 def get_locations(db: Session = Depends(get_db)):
+    from emergency_engine import check_and_process_returns
+    returned = check_and_process_returns(db)
+    if returned:
+        print("Auto-processed returns:", returned)
+
     locations = db.query(Location).order_by(Location.risk_score.desc()).all()
-    return [_location_summary(loc) for loc in locations]
+    return {
+        "locations": [_location_summary(loc) for loc in locations],
+        "auto_returns": returned
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -487,3 +502,23 @@ def reset_deployment(db: Session = Depends(get_db)):
     # Re-query to get refreshed state, ordered by risk
     locations = db.query(Location).order_by(Location.risk_score.desc()).all()
     return [_location_summary(loc) for loc in locations]
+
+
+# ---------------------------------------------------------------------------
+#  Emergency Deployment
+# ---------------------------------------------------------------------------
+
+@app.post("/deployment/emergency")
+def dispatch_emergency_endpoint(body: EmergencyRequest, db: Session = Depends(get_db)):
+    from emergency_engine import dispatch_emergency
+    result = dispatch_emergency(db, body.junction_id, body.officers_needed)
+    return result
+
+
+@app.get("/deployment/reserve")
+def get_reserve(db: Session = Depends(get_db)):
+    from emergency_engine import compute_reserve_pool
+    return {
+        "reserve_pool": compute_reserve_pool(db),
+        "total_force_size": TOTAL_FORCE_SIZE
+    }

@@ -83,3 +83,15 @@ export function resetDeployment() {
     method: "POST",
   });
 }
+
+export function getReservePool() {
+  return request("/deployment/reserve");
+}
+
+export function dispatchEmergency(payload) {
+  return request("/deployment/emergency", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}

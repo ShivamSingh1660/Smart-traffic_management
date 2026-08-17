@@ -103,3 +103,30 @@ Response: the full updated list of locations (same shape as GET /locations).
   }
 ]
 ```
+
+## GET /deployment/reserve
+Returns the current number of available officers in the reserve pool, and the total force size.
+Response:
+```json
+{
+  "reserve_pool": 10,
+  "total_force_size": 25
+}
+```
+
+## POST /deployment/emergency
+Dispatches emergency officers to a location, pulling from the reserve pool first, and then from low-risk locations if necessary.
+Request:
+```json
+{ "junction_id": "j001", "officers_needed": 3 }
+```
+Response:
+```json
+{
+  "junction_id": "j001",
+  "requested": 3,
+  "fulfilled": 3,
+  "sources": [{"from": "reserve", "count": 2}, {"from": "j003", "count": 1}],
+  "new_police_assigned": 3
+}
+```

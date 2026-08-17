@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
 import { getLocations } from "../api/client";
 import RiskMap from "../components/RiskMap";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ShieldAlert } from "lucide-react";
 
 export default function RiskHeatmap() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [autoReturns, setAutoReturns] = useState([]);
 
   const fetchData = () => {
     setLoading(true);
+    setAutoReturns([]);
     getLocations()
       .then((data) => {
-        setLocations(data);
+        setLocations(data.locations || []);
+        if (data.auto_returns && data.auto_returns.length > 0) {
+          setAutoReturns(data.auto_returns);
+          setTimeout(() => setAutoReturns([]), 5000);
+        }
         setLoading(false);
         setError(null);
       })
@@ -28,6 +34,25 @@ export default function RiskHeatmap() {
 
   return (
     <div className="space-y-8 h-full flex flex-col">
+      {/* Auto-Returns Toast */}
+      {autoReturns.length > 0 && (
+        <div className="bg-risk-low/10 border border-risk-low/30 p-4 rounded-xl shadow-lg mb-6 flex items-start gap-3">
+          <div className="text-risk-low font-bold">
+            <ShieldAlert size={20} />
+          </div>
+          <div>
+            <h3 className="text-risk-low font-bold text-sm">AI auto-returned {autoReturns.reduce((sum, r) => sum + r.count, 0)} officer(s)</h3>
+            <ul className="text-sm text-text-primary mt-1 space-y-1">
+              {autoReturns.map((r, i) => (
+                <li key={i}>
+                  [{r.to_junction}] risk resolved, officers sent back to [{r.from_junction}].
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">Risk Heatmap</h1>
