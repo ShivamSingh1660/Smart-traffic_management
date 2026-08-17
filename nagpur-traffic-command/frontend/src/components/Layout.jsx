@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import logoImg from "../assets/traffix-logo.png";
 import { 
   LayoutGrid, 
   Map, 
@@ -28,10 +29,11 @@ function Sidebar() {
     <aside className="w-[260px] h-screen bg-bg-app flex flex-col pt-6 pb-6 border-r border-border-subtle shrink-0 hidden md:flex transition-colors">
       {/* Logo Area */}
       <div className="px-8 mb-10">
-        <div className="w-10 h-10 rounded-full bg-text-primary flex items-center justify-center shadow-lg shadow-black/10">
-          <div className="w-4 h-4 bg-bg-app rounded-sm rotate-45 transform"></div>
-        </div>
-        <div className="mt-4 font-bold text-text-primary">Traffic Command</div>
+        <img 
+          src={logoImg} 
+          alt="Traffix AI Predict Logo" 
+          className="h-14 w-auto object-contain" 
+        />
       </div>
 
       {/* Navigation */}
