@@ -101,14 +101,14 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
         </div>
 
         <form onSubmit={handleDispatch} className="flex flex-col sm:flex-row gap-4 items-end mb-6">
-          <div className="flex-1 w-full">
+          <div className="flex-1 min-w-[280px]">
             <label className="block text-sm font-semibold text-text-secondary mb-2">
               Target Location
             </label>
             <select
               value={selectedJunction}
               onChange={(e) => setSelectedJunction(e.target.value)}
-              className="w-full bg-black/40 border border-border-subtle rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-risk-critical transition-colors"
+              className="w-full bg-black/40 border border-border-subtle rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-risk-critical transition-colors truncate"
               required
             >
               {locations.map((loc) => (
@@ -119,8 +119,8 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
             </select>
           </div>
           
-          <div className="w-full sm:w-32">
-            <label className="block text-sm font-semibold text-text-secondary mb-2">
+          <div className="w-full sm:w-28 shrink-0">
+            <label className="block text-sm font-semibold text-text-secondary mb-2 whitespace-nowrap">
               Officers Needed
             </label>
             <input
@@ -137,7 +137,7 @@ export default function EmergencyDispatchPanel({ onDispatchSuccess }) {
           <button
             type="submit"
             disabled={dispatching || reserveLoading}
-            className="w-full py-4 rounded-xl bg-risk-critical hover:opacity-90 text-white font-extrabold text-lg flex items-center justify-center gap-3 transition-opacity shadow-lg shadow-risk-critical/20 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
+            className="w-full sm:w-auto shrink-0 px-6 py-2.5 rounded-xl bg-risk-critical hover:opacity-90 text-white font-bold flex items-center justify-center gap-2 transition-opacity shadow-lg shadow-risk-critical/20 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
           >
             {dispatching ? "Dispatching..." : "Dispatch Emergency"}
           </button>
