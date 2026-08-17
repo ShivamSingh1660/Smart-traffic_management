@@ -47,7 +47,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://smart-traffic-management-jtcz.vercel.app",
+        "https://smart-traffic-management-lqir.vercel.app",
         "http://localhost:5173"
     ],
     allow_credentials=True,
