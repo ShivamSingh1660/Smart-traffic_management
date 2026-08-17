@@ -322,27 +322,27 @@ def create_incident(body: IncidentCreate, db: Session = Depends(get_db)):
 
     if incident_type == "accident":
         # Accident: bump accident count, slightly reduce avg speed
-        loc.accident_count_recent = min(loc.accident_count_recent + 1, 5)
-        loc.avg_speed = max(loc.avg_speed - 2 * mult, 5)
-        loc.congestion_level = min(loc.congestion_level + 3 * mult, 100)
+        loc.accident_count_recent += 1
+        loc.avg_speed -= 2 * mult
+        loc.congestion_level += 3 * mult
     elif incident_type == "violation":
         # Traffic violation: bump violation count
-        loc.violation_count = min(loc.violation_count + mult, 20)
+        loc.violation_count += mult
     elif incident_type in ("congestion", "traffic"):
         # Congestion event: bump congestion and traffic volume
-        loc.congestion_level = min(loc.congestion_level + 5 * mult, 100)
-        loc.traffic_volume = min(loc.traffic_volume + 5 * mult, 100)
-        loc.avg_speed = max(loc.avg_speed - 3 * mult, 5)
+        loc.congestion_level += 5 * mult
+        loc.traffic_volume += 5 * mult
+        loc.avg_speed -= 3 * mult
     elif incident_type == "obstruction":
         # Road obstruction
-        loc.obstruction_count = min(loc.obstruction_count + 1, 5)
-        loc.avg_speed = max(loc.avg_speed - 2 * mult, 5)
+        loc.obstruction_count += 1
+        loc.avg_speed -= 2 * mult
     elif incident_type == "illegal_parking":
         # Illegal parking
-        loc.illegal_parking_count = min(loc.illegal_parking_count + mult, 15)
+        loc.illegal_parking_count += mult
     else:
         # Unknown type: treat as generic congestion bump
-        loc.congestion_level = min(loc.congestion_level + 3 * mult, 100)
+        loc.congestion_level += 3 * mult
 
     # --- Run ML prediction with updated features ---
     features = _get_feature_dict(loc)
@@ -364,6 +364,65 @@ def create_incident(body: IncidentCreate, db: Session = Depends(get_db)):
 
     return _location_detail(loc, db)
 
+
+# ---------------------------------------------------------------------------
+#  POST /incidents/{incident_id}/resolve
+# ---------------------------------------------------------------------------
+
+@app.post("/incidents/{incident_id}/resolve")
+def resolve_incident(incident_id: str, db: Session = Depends(get_db)):
+    incident = db.query(Incident).filter(Incident.incident_id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail=f"Incident '{incident_id}' not found")
+        
+    if incident.resolved_flag:
+        return {"status": "already_resolved"}
+        
+    loc = db.query(Location).filter(Location.junction_id == incident.junction_id).first()
+    if not loc:
+        raise HTTPException(status_code=404, detail=f"Location '{incident.junction_id}' not found")
+        
+    incident.resolved_flag = True
+    
+    # Reverse the feature mutations
+    severity_mult = {"high": 3, "medium": 2, "low": 1}
+    mult = severity_mult.get(incident.severity, 1)
+    incident_type = incident.type.lower()
+    
+    if incident_type == "accident":
+        loc.accident_count_recent -= 1
+        loc.avg_speed += 2 * mult
+        loc.congestion_level -= 3 * mult
+    elif incident_type == "violation":
+        loc.violation_count -= mult
+    elif incident_type in ("congestion", "traffic"):
+        loc.congestion_level -= 5 * mult
+        loc.traffic_volume -= 5 * mult
+        loc.avg_speed += 3 * mult
+    elif incident_type == "obstruction":
+        loc.obstruction_count -= 1
+        loc.avg_speed += 2 * mult
+    elif incident_type == "illegal_parking":
+        loc.illegal_parking_count -= mult
+    else:
+        loc.congestion_level -= 3 * mult
+        
+    # Run ML prediction with updated features
+    features = _get_feature_dict(loc)
+    ml_score = predict_risk(features)
+    
+    # Check if there's still an active accident to apply boost
+    active_accident = loc.incidents.filter(Incident.resolved_flag == False, Incident.type.ilike('accident')).order_by(Incident.timestamp.desc()).first()
+    boost = SEVERITY_BOOST.get(active_accident.severity, 0) if active_accident else 0
+    loc.risk_score = min(ml_score + boost, 100)
+    
+    loc.risk_level = _compute_risk_level(loc.risk_score)
+    loc.unmanned_critical = _compute_unmanned_critical(loc.risk_level, loc.police_assigned)
+    
+    db.commit()
+    db.refresh(loc)
+    
+    return _location_detail(loc, db)
 
 # ---------------------------------------------------------------------------
 #  GET /deployment/current

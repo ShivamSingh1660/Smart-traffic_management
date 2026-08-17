@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getIncidents, getLocations, postIncident, getLocationDetail } from "../api/client";
+import { getIncidents, getLocations, postIncident, getLocationDetail, resolveIncident } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
 import { RefreshCw, ShieldAlert } from "lucide-react";
 
@@ -26,7 +26,7 @@ export default function ActiveIncidents() {
         getIncidents(),
         getLocations()
       ]);
-      setIncidents(incidentsData);
+      setIncidents(incidentsData.filter(i => !i.resolved_flag));
       setLocations(locationsData.locations || []);
       
       if (locationsData.auto_returns && locationsData.auto_returns.length > 0) {
@@ -93,6 +93,37 @@ export default function ActiveIncidents() {
       alert("Failed to inject incident: " + err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResolve = async (incidentId, junctionId) => {
+    if (!window.confirm("Are you sure you want to resolve this incident? Risk scores will be recalculated.")) return;
+    
+    setToastMessage("");
+    try {
+      const beforeLoc = await getLocationDetail(junctionId);
+      const afterLoc = await resolveIncident(incidentId);
+      
+      const updatedIncidents = await getIncidents();
+      setIncidents(updatedIncidents.filter(i => !i.resolved_flag));
+      
+      const newLog = {
+        id: Date.now(),
+        locationName: afterLoc.name,
+        beforeScore: beforeLoc.risk_score,
+        beforeLevel: beforeLoc.risk_level,
+        afterScore: afterLoc.risk_score,
+        afterLevel: afterLoc.risk_level,
+        timestamp: new Date().toLocaleTimeString(),
+        note: "(Resolved)"
+      };
+      
+      setInjectionLogs((prev) => [newLog, ...prev].slice(0, 10));
+      setToastMessage("Incident resolved. Risk score decreased.");
+      setTimeout(() => setToastMessage(""), 5000);
+      
+    } catch (err) {
+      alert("Failed to resolve incident: " + err.message);
     }
   };
 
@@ -194,9 +225,15 @@ export default function ActiveIncidents() {
                       </div>
                       <p className="text-text-secondary text-sm font-medium">{getLocationName(inc.junction_id)}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex flex-col items-end">
                       <p className="text-text-secondary text-xs font-medium">{new Date(inc.timestamp).toLocaleString()}</p>
-                      <p className="text-text-tertiary text-xs mt-1">ID: {inc.incident_id}</p>
+                      <p className="text-text-tertiary text-xs mt-1 mb-2">ID: {inc.incident_id}</p>
+                      <button 
+                        onClick={() => handleResolve(inc.incident_id, inc.junction_id)}
+                        className="text-[10px] font-bold px-3 py-1.5 bg-risk-low/10 text-risk-low hover:bg-risk-low hover:text-white rounded-lg transition-colors border border-risk-low/20"
+                      >
+                        Resolve
+                      </button>
                     </div>
                   </div>
                 ))}

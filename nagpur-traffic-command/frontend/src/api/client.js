@@ -54,6 +54,12 @@ export function postIncident(payload) {
   });
 }
 
+export function resolveIncident(incidentId) {
+  return request(`/incidents/${encodeURIComponent(incidentId)}/resolve`, {
+    method: "POST",
+  });
+}
+
 export function getCurrentDeployment() {
   return request("/deployment/current");
 }
