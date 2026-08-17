@@ -66,14 +66,14 @@ function RecommendationRow({ row, onActionSuccess }) {
         hasChanged ? "bg-risk-low-bg/30 border-l-4 border-l-[var(--risk-low)]" : "border-l-4 border-l-transparent"
       }`}
     >
-      <td className="px-6 py-4 font-bold text-text-primary">{row.name}</td>
-      <td className="px-6 py-4 font-semibold text-text-secondary">{row.current}</td>
-      <td className="px-6 py-4 font-bold text-risk-low">{row.recommended}</td>
-      <td className="px-6 py-4"><RiskBadge level={row.riskLevel} /></td>
-      <td className="px-6 py-4 text-text-secondary truncate max-w-xs font-medium" title={row.reason}>
+      <td className="px-4 py-4 font-bold text-text-primary whitespace-normal min-w-[120px]">{row.name}</td>
+      <td className="px-4 py-4 font-semibold text-text-secondary text-center">{row.current}</td>
+      <td className="px-4 py-4 font-bold text-risk-low text-center">{row.recommended}</td>
+      <td className="px-4 py-4"><RiskBadge level={row.riskLevel} /></td>
+      <td className="px-4 py-4 text-text-secondary truncate max-w-[100px] md:max-w-[150px] lg:max-w-[200px] font-medium" title={row.reason}>
         {row.reason}
       </td>
-      <td className="px-6 py-4 min-w-[200px]">
+      <td className="px-4 py-4 min-w-[160px] text-right">
         {error && <span className="text-risk-critical text-xs block mb-1 truncate font-medium" title={error}>{error}</span>}
         
         {resultTag ? (
@@ -106,22 +106,22 @@ function RecommendationRow({ row, onActionSuccess }) {
             </button>
           </div>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex justify-end gap-1.5 flex-wrap">
             <button 
               onClick={() => handleOverride('accept', row.recommended)}
-              className="text-xs font-bold px-3 py-1.5 bg-risk-low-bg hover:opacity-80 text-risk-low rounded-full transition-colors"
+              className="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 bg-risk-low-bg hover:opacity-80 text-risk-low rounded-full transition-colors"
             >
               Accept
             </button>
             <button 
               onClick={() => setIsModifying(true)}
-              className="text-xs font-bold px-3 py-1.5 bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover hover:bg-border-subtle text-text-secondary rounded-full transition-colors"
+              className="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 bg-bg-card backdrop-blur-xl backdrop-saturate-150-hover hover:bg-border-subtle text-text-secondary rounded-full transition-colors"
             >
               Modify
             </button>
             <button 
               onClick={() => handleOverride('reject')}
-              className="text-xs font-bold px-3 py-1.5 bg-risk-critical-bg hover:opacity-80 text-risk-critical rounded-full transition-colors"
+              className="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 bg-risk-critical-bg hover:opacity-80 text-risk-critical rounded-full transition-colors"
             >
               Reject
             </button>
@@ -398,12 +398,12 @@ export default function Recommendations() {
             <table className="w-full text-sm text-left whitespace-nowrap">
               <thead>
                 <tr className="border-b border-border-subtle text-text-secondary">
-                  <th className="px-6 py-4 font-medium">Location</th>
-                  <th className="px-6 py-4 font-medium">Current</th>
-                  <th className="px-6 py-4 font-bold text-risk-low">Recommended</th>
-                  <th className="px-6 py-4 font-medium">Risk Level</th>
-                  <th className="px-6 py-4 font-medium">Reasoning</th>
-                  <th className="px-6 py-4 font-medium">Actions</th>
+                  <th className="px-4 py-4 font-medium">Location</th>
+                  <th className="px-4 py-4 font-medium text-center">Current</th>
+                  <th className="px-4 py-4 font-bold text-risk-low text-center">Recommended</th>
+                  <th className="px-4 py-4 font-medium">Risk Level</th>
+                  <th className="px-4 py-4 font-medium">Reasoning</th>
+                  <th className="px-4 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
